@@ -1,0 +1,94 @@
+//
+// _nav.scss
+//
+
+.nav {
+  gap: 10px;
+}
+
+.nav-tabs,
+.nav-pills {
+  > li {
+    > a {
+      color: $gray-700;
+      font-weight: $font-weight-medium;
+    }
+  }
+}
+
+.nav-pills {
+  > a {
+    color: $gray-700;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.nav-tabs-custom {
+  border-bottom: 2px solid $gray-300;
+
+  .nav-item {
+    position: relative;
+    color: $dark;
+    .nav-link {
+      border: none;
+
+      &::after {
+        content: "";
+        background: var(--primary);
+        height: 2px;
+        position: absolute;
+        width: 100%;
+        left: 0;
+        bottom: -1px;
+        transition: all 250ms ease 0s;
+        transform: scale(0);
+      }
+
+      &.active {
+        color: var(--primary);
+        &:after {
+          transform: scale(1);
+        }
+      }
+    }
+  }
+}
+
+// vertical nav
+
+.vertical-nav {
+  .nav {
+    .nav-link {
+      padding: 24px 16px;
+      text-align: center;
+      margin-bottom: 8px;
+      .nav-icon {
+        font-size: 24px;
+      }
+    }
+  }
+}
+
+#billing-prices {
+  .nav.nav-pills {
+    width: 220px;
+    border: 1px solid var(--primary);
+    border-radius: 28px;
+
+    .nav-link.active,
+    .show > .nav-link {
+      border-top-left-radius: 18px;
+      border-bottom-left-radius: 18px;
+      border-top-right-radius: 18px;
+      border-bottom-right-radius: 18px;
+    }
+  }
+}
+
+.nav-pills {
+  .active.nav-item,
+  .nav-pills .show > .nav-item {
+    border-radius: 0.25rem;
+    background-color: var(--primary) !important;
+  }
+}

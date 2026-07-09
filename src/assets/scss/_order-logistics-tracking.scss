@@ -1,0 +1,49 @@
+.order-logistics-tracking {
+  .order-logistics-timeline {
+    margin: 0;
+    padding-left: 0.25rem;
+  }
+
+  .order-logistics-timeline__item {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    padding-left: 1.5rem;
+    padding-bottom: 1.25rem;
+
+    &:not(:last-child)::before {
+      content: "";
+      position: absolute;
+      left: 0.35rem;
+      top: 0.75rem;
+      bottom: 0;
+      width: 2px;
+      background: #e9ecef;
+    }
+
+    &--active {
+      .order-logistics-timeline__dot {
+        background: #556ee6;
+        box-shadow: 0 0 0 3px rgba(85, 110, 230, 0.2);
+      }
+
+      strong {
+        color: #556ee6;
+      }
+    }
+  }
+
+  .order-logistics-timeline__dot {
+    position: absolute;
+    left: 0;
+    top: 0.35rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background: #adb5bd;
+  }
+
+  .order-logistics-timeline__content {
+    flex: 1;
+  }
+}

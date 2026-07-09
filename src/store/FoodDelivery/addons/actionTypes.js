@@ -1,0 +1,31 @@
+export const FD_ADDON_API_FAIL = "FD_ADDON_API_FAIL"
+
+// Drivers
+export const GET_FD_ADDONS = "GET_FD_ADDONS"
+export const GET_FD_ADDONS_FAIL = "GET_FD_ADDONS_FAIL"
+export const GET_FD_ADDONS_SUCCESS = "GET_FD_ADDONS_SUCCESS"
+
+// Add Driver
+export const ADD_FD_ADDON = "ADD_FD_ADDON"
+export const ADD_FD_ADDON_FAIL = "ADD_FD_ADDON_FAIL"
+export const ADD_FD_ADDON_SUCCESS = "ADD_FD_ADDON_SUCCESS"
+
+// Get Driver
+export const GET_FD_ADDON = "GET_FD_ADDON"
+export const GET_FD_ADDON_FAIL = "GET_FD_ADDON_FAIL"
+export const GET_FD_ADDON_SUCCESS = "GET_FD_ADDON_SUCCESS"
+
+// update Driver
+export const PUT_FD_ADDON = "PUT_FD_ADDON"
+export const PUT_FD_ADDON_FAIL = "PUT_FD_ADDON_FAIL"
+export const PUT_FD_ADDON_SUCCESS = "PUT_FD_ADDON_SUCCESS"
+
+// Delete Driver
+export const DELETE_FD_ADDON = "DELETE_FD_ADDON"
+export const DELETE_FD_ADDON_FAIL = "DELETE_FD_ADDON_FAIL"
+export const DELETE_FD_ADDON_SUCCESS = "DELETE_FD_ADDON_SUCCESS"
+
+// Update Multi Driver Status
+export const PUT_FD_ADDONS_STATUS = "PUT_FD_ADDONS_STATUS"
+export const PUT_FD_ADDONS_STATUS_FAIL = "PUT_FD_ADDONS_STATUS_FAIL"
+export const PUT_FD_ADDONS_STATUS_SUCCESS = "PUT_FD_ADDONS_STATUS_SUCCESS"

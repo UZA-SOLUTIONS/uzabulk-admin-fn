@@ -1,0 +1,174 @@
+// Vertical sidebar — refined SaaS-style navigation (loaded after app via custom1)
+
+$sidebar-tint-hover: rgba(35, 52, 72, 0.07);
+$sidebar-tint-active: rgba(35, 52, 72, 0.11);
+$sidebar-divider: rgba(15, 23, 42, 0.08);
+
+.vertical-menu {
+  border-right: 1px solid $sidebar-divider !important;
+  box-shadow: 4px 0 28px rgba(15, 23, 42, 0.06) !important;
+}
+
+#sidebar-menu {
+  padding: 18px 0 36px;
+
+  > ul > li {
+    margin-bottom: 1px;
+  }
+
+  ul li a {
+    font-weight: 500 !important;
+    letter-spacing: 0.015em;
+    font-size: 13px;
+    border-radius: 8px;
+    margin: 2px 10px;
+    transition: background-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+  }
+
+  > ul > li > a {
+    padding: 0.62rem 1rem !important;
+  }
+
+  ul.sub-menu {
+    padding: 4px 0 10px;
+    margin: 2px 10px 6px 12px;
+    border-left: 1px solid $sidebar-divider;
+
+    li a {
+      margin: 1px 6px;
+      padding: 0.42rem 0.75rem 0.42rem 1rem !important;
+      font-size: 12.5px !important;
+      border-radius: 6px;
+    }
+
+    ul.sub-menu {
+      border-left: none;
+      margin-left: 0;
+      padding-top: 0;
+
+      li a {
+        padding-left: 1.1rem !important;
+      }
+    }
+  }
+
+  .parentsidebar {
+    display: block;
+    padding: 1.1rem 1.35rem 0.4rem;
+    margin-top: 0.25rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    pointer-events: none;
+    line-height: 1.2;
+  }
+
+  ul li a i {
+    opacity: 0.9;
+    font-size: 1.15rem !important;
+  }
+}
+
+#sidebar-menu ul li a:hover {
+  color: var(--primary) !important;
+  background-color: $sidebar-tint-hover !important;
+}
+
+#sidebar-menu ul li ul.sub-menu li a:hover {
+  color: var(--primary) !important;
+  background-color: $sidebar-tint-hover !important;
+}
+
+// Remove heavy full-width primary fill on the list item container
+div#sidebar-menu li.mm-active {
+  background: transparent !important;
+}
+
+div#sidebar-menu li.mm-active ul {
+  background: transparent !important;
+}
+
+div#sidebar-menu li.mm-active > a,
+div#sidebar-menu li.mm-active > a > i {
+  color: var(--primary) !important;
+}
+
+div#sidebar-menu li.mm-active > a.has-arrow,
+div#sidebar-menu li.mm-active > a:not(.has-arrow) {
+  background: $sidebar-tint-active !important;
+  box-shadow: inset 3px 0 0 0 var(--primary);
+  color: var(--primary) !important;
+  font-weight: 600 !important;
+}
+
+div#sidebar-menu li.mm-active > a.has-arrow > i,
+div#sidebar-menu li.mm-active > a:not(.has-arrow) > i {
+  color: var(--primary) !important;
+}
+
+div#sidebar-menu li.mm-active ul li.mm-active,
+div#sidebar-menu li.mm-active ul li.mm-active a {
+  background: transparent !important;
+}
+
+div#sidebar-menu li.mm-active ul li.mm-active a {
+  color: var(--primary) !important;
+  font-weight: 600;
+  background: $sidebar-tint-active !important;
+  box-shadow: inset 3px 0 0 0 var(--primary);
+}
+
+.vertical-collpsed {
+  div#sidebar-menu li.mm-active > a.has-arrow,
+  div#sidebar-menu li.mm-active > a.has-arrow > i {
+    color: var(--primary) !important;
+  }
+}
+
+// Dark sidebar theme
+body[data-sidebar="dark"] {
+  .vertical-menu {
+    border-right-color: rgba(255, 255, 255, 0.06) !important;
+    box-shadow: 4px 0 32px rgba(0, 0, 0, 0.22) !important;
+  }
+
+  #sidebar-menu .parentsidebar {
+    color: rgba(166, 176, 207, 0.5);
+  }
+
+  #sidebar-menu ul.sub-menu {
+    border-left-color: rgba(255, 255, 255, 0.07);
+  }
+
+  #sidebar-menu ul li a:hover,
+  #sidebar-menu ul li ul.sub-menu li a:hover {
+    background-color: rgba(255, 255, 255, 0.07) !important;
+    color: #fff !important;
+  }
+
+  div#sidebar-menu li.mm-active > a,
+  div#sidebar-menu li.mm-active > a > i,
+  div#sidebar-menu li.mm-active > a.has-arrow,
+  div#sidebar-menu li.mm-active > a.has-arrow > i {
+    color: #fff !important;
+  }
+
+  div#sidebar-menu li.mm-active > a.has-arrow,
+  div#sidebar-menu li.mm-active > a:not(.has-arrow) {
+    background: rgba(255, 255, 255, 0.09) !important;
+    box-shadow: inset 3px 0 0 0 rgba(255, 255, 255, 0.9);
+  }
+
+  div#sidebar-menu li.mm-active ul li.mm-active a {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.09) !important;
+    box-shadow: inset 3px 0 0 0 rgba(255, 255, 255, 0.9);
+  }
+
+  .vertical-collpsed div#sidebar-menu li.mm-active > a.has-arrow,
+  .vertical-collpsed div#sidebar-menu li.mm-active > a.has-arrow > i {
+    color: #fff !important;
+  }
+}

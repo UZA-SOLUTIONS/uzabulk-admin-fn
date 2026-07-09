@@ -1,0 +1,48 @@
+//
+// Contacts.scss
+//
+
+.contact-links {
+  a {
+    color: $body-color;
+  }
+}
+
+// profile
+
+.profile-user-wid {
+  margin-top: -26px;
+}
+
+.fraud-badge {
+  position: absolute;
+  top: 12px;
+  left: 24px;
+  z-index: 1;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.85;
+  }
+  &:active {
+    opacity: 0.7;
+  }
+}
+.list-name-with-badge {
+  display: flex;
+  justify-content: space-between;
+}
+.fraud-badge-in-list {
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+  color: #f46a6a !important;
+  background-color: rgba(244, 106, 106, 0.18);
+}
+
+.fraud-badge-close-icon {
+  font-size: 18px;
+}

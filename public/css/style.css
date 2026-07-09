@@ -1,0 +1,40 @@
+@font-face {
+  font-family: "Europa-Regular";
+  src: url("../fonts/EuropaRegular.eot"); /* IE9 Compat Modes */
+  src: url("../fonts/EuropaRegular.eot?#iefix") format("embedded-opentype"),
+    /* IE6-IE8 */ url("../fonts/EuropaRegular.otf") format("opentype"),
+    /* Open Type Font */ url("../fonts/EuropaRegular.svg") format("svg"),
+    /* Legacy iOS */ url("../fonts/EuropaRegular.ttf") format("truetype"),
+    /* Safari, Android, iOS */ url("../fonts/EuropaRegular.woff") format("woff"),
+    /* Modern Browsers */ url("../fonts/EuropaRegular.woff2") format("woff2"); /* Modern Browsers */
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Europa-Bold";
+  src: url("../fonts/Europa-Bold.eot"); /* IE9 Compat Modes */
+  src: url("../fonts/Europa-Bold.eot?#iefix") format("embedded-opentype"),
+    /* IE6-IE8 */ url("../fonts/Europa-Bold.otf") format("opentype"),
+    /* Open Type Font */ url("../fonts/Europa-Bold.svg") format("svg"),
+    /* Legacy iOS */ url("../fonts/Europa-Bold.ttf") format("truetype"),
+    /* Safari, Android, iOS */ url("../fonts/Europa-Bold.woff") format("woff"),
+    /* Modern Browsers */ url("../fonts/Europa-Bold.woff2") format("woff2"); /* Modern Browsers */
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "FSElliotPro";
+  src: url("../fonts/FSElliotPro-Regular.eot"); /* IE9 Compat Modes */
+  src: url("../fonts/FSElliotPro-Regular.eot?#iefix")
+      format("embedded-opentype"),
+    /* IE6-IE8 */ url("../fonts/FSElliotPro-Regular.otf") format("opentype"),
+    /* Open Type Font */ url("../fonts/FSElliotPro-Regular.svg") format("svg"),
+    /* Legacy iOS */ url("../fonts/FSElliotPro-Regular.ttf") format("truetype"),
+    /* Safari, Android, iOS */ url("../fonts/FSElliotPro-Regular.woff")
+      format("woff"),
+    /* Modern Browsers */ url("../fonts/FSElliotPro-Regular.woff2")
+      format("woff2"); /* Modern Browsers */
+  font-weight: normal;
+  font-style: normal;
+}

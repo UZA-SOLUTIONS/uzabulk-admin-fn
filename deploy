@@ -1,0 +1,11 @@
+#!/bin/bash
+git push
+ssh -tt -i ~/anmol anmol@3.22.105.156 << EOF
+    cd /home/project/frontend/projectName-admin-frontend
+    git reset --hard origin/staging
+    git pull
+    exit
+EOF
+
+
+#pm2 serve ./build --spa --port 3000 --name blockchain-logistics-admin

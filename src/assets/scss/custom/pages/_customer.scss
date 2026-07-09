@@ -1,0 +1,103 @@
+.sortable {
+  .caret {
+    margin-left: 1px;
+  }
+}
+
+.search-box.inline-button {
+  .form-control {
+    padding: 0.47rem 0.75rem;
+    padding-right: 40px;
+  }
+
+  .search-icon-btn {
+    position: absolute;
+    right: 1px;
+    top: 1.49px;
+    font-size: 16px;
+  }
+}
+
+.country-code-option.selected {
+  background-color: var(--primary);
+
+  span,
+  .country-name {
+    color: #ffffff;
+  }
+}
+
+.custom-option,
+.country-code-option {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+
+  .flag {
+    font-size: 15px;
+  }
+
+  .country-name {
+    white-space: nowrap;
+    width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .country-code {
+    color: var(--secondary);
+  }
+}
+
+.country-code-option {
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgb(38, 132, 255);
+
+    span {
+      color: #ffffff;
+    }
+  }
+}
+
+.dropzone-previews {
+  .close-icon {
+    padding: 4px 6px;
+    cursor: pointer;
+    font-size: 18px;
+  }
+}
+
+.modal-content.remove-confirm {
+  .infoimg {
+    text-align: center;
+    margin-top: 20px;
+
+    svg {
+      overflow: hidden;
+      width: 74px;
+      fill: var(--primary);
+    }
+  }
+
+  .fill-danger {
+    svg {
+      fill: var(--danger);
+    }
+  }
+
+  h4 {
+    text-align: center;
+    margin: 23px 0px;
+  }
+
+  .delete-btns {
+    text-align: center;
+    margin: 23px 0px;
+
+    button {
+      margin: 0 3px;
+    }
+  }
+}

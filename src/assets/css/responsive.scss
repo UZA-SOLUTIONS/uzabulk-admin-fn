@@ -1,0 +1,1140 @@
+.auth-body {
+  @media (min-width: 992px) and (max-width: 1200px) {
+    .hidden-list label {
+      width: 111px !important;
+      font-size: 10px;
+    }
+    #sign-up .inline-flex {
+      padding-left: 3px;
+    }
+
+    #sign-up aside {
+      width: 382px;
+    }
+
+    .inte-text br {
+      display: none;
+    }
+
+    input.form-controls {
+      border: 0;
+      width: 65%;
+    }
+
+    h1 {
+      font-size: 42px;
+      line-height: 54px;
+    }
+    .panel-default > .panel-heading a {
+      padding: 20px;
+      font-size: 22px;
+    }
+  }
+  @media (min-width: 993px) {
+    .responsvenav-header {
+      display: none;
+    }
+    .mobile-integration {
+      display: none;
+    }
+  }
+  @media (max-width: 992px) {
+    #login .img-fluid.registerlogo {
+      width: 30%;
+    }
+
+    .invisible-checkboxes li {
+      width: 100%;
+      position: relative;
+    }
+    .nopaddleft {
+      padding-left: 15px;
+    }
+    .top-sidebar {
+      padding: 21px 20px 92px 20px;
+    }
+    .nopaddright {
+      padding-right: 15px;
+    }
+    aside {
+      width: 324px;
+    }
+
+    #freetrial {
+      padding-top: 36px;
+      background: #fff9ec;
+      padding-bottom: 24px;
+      margin-top: 55px;
+    }
+    form#loginform {
+      width: 80%;
+    }
+    .set > a {
+      border-radius: 10px;
+      margin-right: 18px;
+    }
+    .topsidebarcontact {
+      padding: 72px 20px 00px 20px;
+      margin-top: 84px;
+    }
+    #contactform {
+      background: #fff;
+    }
+
+    .firstsectionpadd {
+      margin-bottom: 23px;
+    }
+    #faqspageection .pt-80 {
+      padding-top: 30px;
+    }
+    .ordermd1 {
+      order: 1;
+    }
+
+    .integrations-list {
+      padding: 9px 22px;
+      margin-bottom: 16px;
+    }
+
+    .inner-section-headingpadd {
+      text-align: center !important;
+      margin-bottom: 17px;
+    }
+    .ordermd2 {
+      order: 2;
+    }
+    .inner-clients {
+      bottom: 0 !important;
+      margin-top: 0;
+    }
+
+    .row.mt-74 {
+      margin-top: 44px;
+    }
+    #marketplace svg {
+      width: 50px;
+      height: 50px;
+    }
+    .d-solutions-wrap {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .desktop-integration {
+      display: none;
+    }
+
+    .navbar-toggler-icon {
+      line-height: 37px;
+      font-size: 23px;
+    }
+  }
+  @media (min-width: 768px) and (max-width: 991px) {
+    h1 {
+      font-size: 31px;
+      line-height: 44px;
+    }
+
+    .themebtn {
+      font-size: 17px;
+    }
+
+    .appfeaturelist {
+      margin-top: 15px;
+    }
+
+    .flex-button button {
+      margin: 0px 6px 8px 6px;
+    }
+    h4 {
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: 1.1px;
+    }
+    .flex-button {
+      margin-top: 19px;
+    }
+    .heading {
+      font-size: 27px;
+      line-height: 39px;
+    }
+
+    .headingbottom {
+      margin-bottom: 23px;
+    }
+    p {
+      font-size: 15px;
+      line-height: 28px;
+    }
+
+    .panel-default > .panel-heading a[aria-expanded="false"]::after {
+      width: 25px;
+      height: 25px;
+    }
+    .panel-default > .panel-heading a[aria-expanded="true"]::after {
+      width: 25px;
+      height: 25px;
+    }
+    .panel-default > .panel-heading a {
+      display: block;
+      padding: 14px;
+      font-size: 18px;
+    }
+
+    .top-text-wrap {
+      padding-top: 6px;
+      padding-left: 58px;
+    }
+
+    .owl-dots {
+      margin-top: 16px;
+    }
+
+    .projectswrap {
+      text-align: center;
+    }
+
+    .ourstrength {
+      justify-content: space-between;
+      padding: 30px 19px;
+    }
+    .getintouchwyrap {
+      padding-left: 0;
+      margin-top: 24px;
+    }
+
+    input.form-controls {
+      border: 0;
+      width: 100%;
+    }
+    .submitbtn {
+      font-size: 16px;
+      text-align: left;
+      padding-left: 0;
+    }
+    footer p {
+      margin-top: 0;
+    }
+  }
+  @media (min-width: 768px) {
+    .img-fluid.footerlogo.desktopnone {
+      display: none;
+    }
+  }
+  @media (max-width: 767px) {
+    .img-fluid.footerlogo.desktopnone {
+      margin-bottom: 26px;
+    }
+    .responsivenone {
+      display: none;
+    }
+    .mt-38 {
+      margin-top: 17px;
+    }
+    .order4res {
+      order: 4;
+    }
+    .center.right-pulse {
+      position: absolute;
+      right: 2%;
+      bottom: 78px;
+    }
+    .switch input[type="radio"]#no:checked ~ .switchFilter {
+      left: 105px;
+    }
+    .switch input[type="radio"]#no1:checked ~ .switchFilter {
+      left: 105px;
+    }
+    .switch input[type="radio"]#no2:checked ~ .switchFilter {
+      left: 105px;
+    }
+    .switch input[type="radio"]#no3:checked ~ .switchFilter {
+      left: 105px;
+    }
+
+    .hidden-list label {
+      font-size: 11px;
+    }
+    .invisible-checkboxes li {
+      width: 48%;
+      position: relative;
+    }
+    .hidden-list label {
+      width: 105px !important;
+    }
+    .registerwrap {
+      width: 100%;
+    }
+
+    aside {
+      position: relative;
+      right: 0;
+      width: 450px;
+      top: 0;
+      background: #eff2f5;
+      height: 100%;
+      width: 98%;
+      padding-bottom: 0;
+
+      margin: 0 auto;
+      margin-bottom: 25px;
+    }
+    .top-sidebar {
+      height: 279px;
+    }
+    .waves {
+      position: absolute;
+      top: -40px;
+    }
+    #sign-up .bottom-sidebar p {
+      margin-bottom: 9px;
+    }
+    #regForm .fullwidthbtn {
+      margin-top: 0;
+      height: 43px;
+      font-size: 16px;
+    }
+    .centerdiv {
+      position: relative;
+      top: 0;
+      left: 0;
+      transform: none;
+      width: 65%;
+      margin: 0 auto;
+    }
+    #sign-up .bottom-sidebar ul {
+      padding: 0;
+      list-style: none;
+      margin-top: 16px;
+      margin-bottom: 0;
+      justify-content: center;
+    }
+    #sign-up p {
+      margin-bottom: 10px;
+    }
+    .bottom-padd {
+      padding: 2px;
+      text-align: center;
+    }
+    .pricing-faq #accordion {
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+    #marketplace.pricing-marketplace {
+      padding-top: 6px;
+      padding-bottom: 29px;
+    }
+    #faq.pricing-faq {
+      padding-top: 23px;
+    }
+    .pricinglist {
+      width: 80%;
+    }
+    #freetrial .themebtn {
+      margin-top: 19px;
+      margin-bottom: 4px;
+    }
+    #freetrial {
+      padding-top: 7px;
+      padding-bottom: 24px;
+      margin-top: 55px;
+    }
+    #pricing-bottom h3 {
+      text-align: center;
+      font-size: 16px;
+      line-height: 25px;
+      width: 100%;
+    }
+    #login h1 {
+      font-size: 25px;
+    }
+
+    .contact-div {
+      border-bottom-right-radius: 10px;
+    }
+    .subbannerheading {
+      margin: 0 auto;
+      width: 96%;
+      text-align: center;
+    }
+    #contactform {
+      background: #fff;
+      width: 100%;
+    }
+    #contactform .waves {
+      position: absolute;
+      top: -71px;
+      width: 100%;
+    }
+    #contactform .waves {
+      height: 88px;
+      min-height: 40px;
+    }
+
+    .heading {
+      margin-top: 15px;
+    }
+    .innersec-button {
+      margin-top: 24px;
+      text-align: center;
+    }
+
+    .order2 {
+      order: 2;
+    }
+    .firstsectionpadd {
+      padding-top: 102px !important;
+    }
+    .footerlogo {
+      margin-bottom: 0;
+      width: 37%;
+    }
+
+    .themebtnblack {
+      width: 131px;
+      height: 40px;
+      font-size: 17px;
+      margin-left: 14px;
+      margin-top: 23px;
+    }
+
+    h1 {
+      font-size: 31px;
+      line-height: 43px;
+    }
+
+    .themebtn,
+    .themebtn-unfilled {
+      font-size: 15px;
+    }
+
+    .heading {
+      font-size: 26px;
+      line-height: 40px;
+      padding-bottom: 12px;
+      text-align: center;
+    }
+    .heading::after {
+      width: 73px;
+      height: 3px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .paragraph {
+      padding-top: 10px;
+      text-align: center;
+    }
+    .privacy .mt-40 {
+      margin-top: 17px;
+    }
+
+    h4 {
+      text-align: center;
+      font-size: 12px;
+      line-height: 12px;
+    }
+    .headingbottom {
+      margin-bottom: 23px;
+      text-align: center;
+      font-size: 31px;
+    }
+
+    .panel-default > .panel-heading a[aria-expanded="false"]::after {
+      width: 25px;
+      height: 25px;
+    }
+    .panel-default > .panel-heading a[aria-expanded="true"]::after {
+      width: 25px;
+      height: 25px;
+    }
+    .panel-default > .panel-heading a {
+      padding: 13px;
+      font-size: 20px;
+      text-align: left;
+    }
+
+    br {
+      display: none;
+    }
+
+    .top-text-wrap {
+      padding-top: 37px;
+      padding-left: 0;
+    }
+    .qomas {
+      margin: 0 auto;
+      margin-top: 14px;
+    }
+    .client-wrap {
+      justify-content: center;
+    }
+
+    .owl-dots {
+      margin-top: 25px;
+      text-align: center;
+    }
+    .cover {
+      margin-top: 37px;
+    }
+
+    footer p {
+      margin-top: 7px;
+    }
+    footer {
+      padding: 36px 00px 36px 00px;
+      margin-top: 15px;
+    }
+
+    #sign-up.flex-btn .themebtnblack {
+      height: 47px;
+    }
+  }
+  @media (max-width: 576px) {
+    .center.right-pulse {
+      position: absolute;
+      right: 6%;
+      bottom: 78px;
+    }
+    #login .img-fluid.registerlogo {
+      width: 44%;
+    }
+    .hidden-list label {
+      width: 95px !important;
+    }
+    .checkbox-alias {
+      height: 179px !important;
+    }
+
+    .checkbox-alias h3 {
+      font-size: 17px;
+      margin: 0;
+      text-align: center;
+    }
+    .topslider.topslideactive {
+      top: 56px !important;
+      transition: 0.5s;
+    }
+    .switch input[type="radio"]#no1:checked ~ .switchFilter {
+      left: 96px;
+      width: 50%;
+      opacity: 1;
+      border-radius: 50px;
+    }
+    .switch input[type="radio"]#no:checked ~ .switchFilter {
+      left: 96px;
+      width: 50%;
+      opacity: 1;
+      border-radius: 50px;
+    }
+    .switch input[type="radio"]#no2:checked ~ .switchFilter {
+      left: 96px;
+      width: 50%;
+      opacity: 1;
+      border-radius: 50px;
+    }
+    .switch input[type="radio"]#no3:checked ~ .switchFilter {
+      left: 96px;
+      width: 50%;
+      opacity: 1;
+      border-radius: 50px;
+    }
+    .switch input[type="radio"]#no4:checked ~ .switchFilter {
+      left: 96px;
+      width: 50%;
+      opacity: 1;
+      border-radius: 50px;
+    }
+    .pricinglist {
+      width: 100%;
+    }
+    .img-fluid.registerlogo {
+      width: 42%;
+    }
+    #login {
+      height: 100%;
+    }
+
+    .topsidebarcontact {
+      padding: 72px 20px 00px 20px;
+      margin-top: 42px;
+    }
+    .noleftres {
+      padding-right: 5px;
+    }
+    .norightres {
+      padding-left: 5px;
+    }
+    #live-demos .owl-prev {
+      position: absolute;
+      left: 0;
+    }
+    #inner-integrations .heading {
+      margin-bottom: 39px;
+    }
+
+    #live-demos .owl-next {
+      position: absolute;
+      right: 0;
+    }
+    .d-solutions-wrap {
+      text-align: center;
+      margin-bottom: 20px;
+      width: 80%;
+      margin: 0 auto;
+    }
+
+    .customer-list-wrap {
+      padding: 15px;
+    }
+    .customer-list-wrap {
+      border: 1px solid #e6e6e6;
+      height: 105px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .country-drop a {
+      padding: 3px 16px;
+      position: relative;
+      font-size: 16px;
+      line-height: 36px;
+      text-transform: capitalize;
+      color: #373a3b;
+      letter-spacing: normal;
+      margin: 0;
+      display: block;
+    }
+    .center.right-pulse {
+      position: absolute;
+      right: 6%;
+      bottom: 62px;
+    }
+    .invisible-checkboxes li {
+      width: 100%;
+      position: relative;
+    }
+    .centerdiv {
+      position: relative;
+      top: 0;
+      left: 0;
+      transform: none;
+      width: 100%;
+      margin: 0 auto;
+    }
+    aside h5 {
+      font-size: 18px;
+      margin-top: 16px;
+      color: #fff;
+    }
+    aside {
+      position: relative;
+      right: 0;
+      /* width: 450px; */
+      top: 0;
+      background: #eff2f5;
+      height: 100%;
+      width: 96%;
+      padding-bottom: 0;
+      margin: 0 auto;
+      margin-bottom: 17px;
+    }
+    #sign-up h1 {
+      font-size: 27px;
+      line-height: 37px;
+    }
+    #sign-up input,
+    #sign-up select {
+      width: 100%;
+      height: 35px;
+      padding: 0 14px;
+      font-size: 13px;
+    }
+    .invisible-checkboxes {
+      margin-bottom: 0;
+    }
+    #sign-up p {
+      margin-bottom: 5px;
+      font-size: 13px;
+    }
+    #regForm .fullwidthbtn {
+      margin-top: 0;
+      height: 41px;
+      font-size: 14px;
+    }
+    .custom-checkbox .custom-control-label::before {
+      width: 20px;
+      height: 20px;
+    }
+    #sign-up .input-group {
+      border: 0;
+      background: transparent;
+      padding: 0px 13px 0 0;
+    }
+    #sign-up .custom-control label {
+      padding-left: 11px;
+    }
+    form#regForm {
+      margin: 0 auto 0 0;
+      /* margin-top: 88px; */
+      margin-bottom: 50px;
+      padding-top: 62px;
+      background: transparent;
+    }
+    .pricinglist p {
+      font-size: 16px;
+    }
+    #login .fullwidthbtn {
+      width: 100%;
+      height: 37px;
+      margin-top: 19px;
+    }
+    .smalllist {
+      padding: 17px 12px;
+    }
+    .pricinglist hr {
+      margin: 13px auto 11px auto;
+      border-radius: 8px;
+      opacity: 0.5;
+    }
+    .featurelist li {
+      line-height: 27px;
+      font-size: 13px;
+    }
+    .larglist {
+      padding: 17px 12px;
+    }
+    #login label {
+      margin-bottom: 5px;
+      width: 100%;
+      font-size: 15px;
+    }
+    form#loginform {
+      width: 100%;
+      margin-top: 47px;
+    }
+
+    .integrations-list h5 {
+      font-size: 16px;
+      margin-bottom: 0;
+      margin-top: 8px;
+    }
+    .features-listing .integrations-list h5 {
+      font-size: 16px;
+      margin-bottom: 0;
+      text-align: center;
+      margin-top: 12px;
+    }
+    .inte-text {
+      padding-left: 0;
+    }
+    .privacy .mt-40 {
+      margin-top: 0;
+    }
+    .privacy h3 {
+      font-size: 19px !important;
+    }
+    .privacy {
+      padding-bottom: 0 !important;
+    }
+    .set > a {
+      text-decoration: none;
+      display: flex;
+      padding: 11px 17px;
+      font-size: 16px;
+    }
+  }
+  @media (min-width: 320px) and (max-width: 480px) {
+    .flex-button button {
+      margin: 6px 0px;
+    }
+    .customer-list-wrap .img-fluid {
+      max-width: 79%;
+      height: 67px;
+      object-fit: contain;
+    }
+
+    .themebtn {
+      width: auto;
+      height: 41px;
+      font-size: 16px;
+    }
+    .themebtn-unfilled {
+      width: auto;
+      height: 41px;
+      font-size: 16px;
+    }
+    p {
+      font-size: 14px;
+      line-height: 24px;
+    }
+    .appfeaturelist li {
+      padding-right: 6px;
+      line-height: 30px;
+    }
+
+    .solutionwrap h3 {
+      color: #292f30;
+      font-size: 18px;
+      line-height: 30px;
+      font-family: "Europa-Bold";
+      margin: 0;
+      padding-top: 0;
+      text-align: center;
+    }
+
+    .topsection {
+      background: #fff;
+      padding: 13px 14px 13px 14px;
+    }
+    .partnerslist .img-fluid {
+      max-width: 100%;
+      height: auto;
+      width: 75%;
+    }
+    .submitbtn {
+      font-size: 14px;
+    }
+    input.form-controls {
+      border: 0;
+      width: 70%;
+      font-size: 14px;
+    }
+    .ourstrength {
+      padding: 8px 8px;
+    }
+    .partnerslist {
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .video-play-button span {
+      border-left: 19px solid #00b388;
+      border-top: 11px solid transparent;
+      border-bottom: 11px solid transparent;
+      position: absolute;
+      top: 51%;
+      left: 54%;
+      transform: translate(-50%, -50%);
+    }
+    .worktitle h3 {
+      font-size: 16px;
+      padding: 10px 00px;
+    }
+
+    .cover {
+      margin-top: 19px;
+      height: 232px;
+    }
+    .owl-dots {
+      margin-top: 16px;
+      text-align: center;
+    }
+    .client-wrap h3 {
+      font-size: 16px;
+    }
+    .client-wrap h4 {
+      font-size: 11px;
+      letter-spacing: 1.1px;
+    }
+    .qomas {
+      width: 31px !important;
+      height: 27px;
+      margin-top: 64px;
+      margin-top: 0;
+    }
+    .top-text-wrap {
+      padding-top: 18px;
+      padding-left: 0;
+    }
+
+    .panel-default > .panel-heading a[aria-expanded="false"]::after {
+      width: 18px;
+      height: 18px;
+      font-size: 15px;
+      padding-left: 2px;
+      line-height: 0px;
+      padding-bottom: 1px;
+    }
+    .panel-default > .panel-heading a[aria-expanded="true"]::after {
+      width: 18px;
+      height: 18px;
+      font-size: 15px;
+      padding-left: 0px;
+      line-height: 0px;
+      padding-bottom: 1px;
+    }
+    .panel-default > .panel-heading a {
+      padding: 10px;
+      font-size: 16px;
+      text-align: left;
+      letter-spacing: initial;
+    }
+    .video-play-button::before {
+      width: 60px;
+      height: 60px;
+    }
+
+    .imgouter img {
+      max-width: 100%;
+      height: auto;
+      width: 45px;
+      height: 45px;
+      object-fit: contain;
+    }
+    .solutionwrap {
+      padding: 15px 15px 20px 15px;
+      border: 0;
+    }
+
+    h4 {
+      font-size: 16px;
+      line-height: 21px;
+      letter-spacing: 0.6px;
+      margin: 0;
+    }
+    .integrations-list {
+      display: block;
+      text-align: center;
+      padding: 12px 10px;
+      height: 91%;
+    }
+    .banner-form input {
+      width: 47%;
+    }
+    .marketplace-wrap {
+      padding: 26px 10px;
+      margin-top: 25px;
+      height: 149px;
+    }
+    .customer-list-wrap {
+      padding: 8px;
+    }
+    footer input.form-controls {
+      border: 1px solid #00b3884f;
+      width: 100%;
+    }
+    .inte-text {
+      padding-left: 0;
+      padding-top: 0;
+    }
+
+    .headingbottom {
+      margin-bottom: 12px;
+      text-align: center;
+      font-size: 21px;
+      line-height: 30px;
+    }
+
+    .appfeaturelist li a {
+      padding: 5px 7px;
+      font-size: 12px;
+    }
+    .heading {
+      font-size: 25px;
+      line-height: 28px;
+      padding-bottom: 14px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 24px;
+      line-height: 32px;
+    }
+
+    .input-group {
+      padding: 6px 9px;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+    .banner-form {
+      height: 47px;
+    }
+    header {
+      position: absolute;
+      width: 100%;
+      top: 0px;
+    }
+    .submitbtn {
+      text-align: right;
+    }
+    .social-media {
+      display: flex;
+      margin-top: 8px;
+      margin-bottom: 0;
+    }
+
+    .navbar-brand {
+      padding: 0;
+      margin: 0;
+    }
+    .img-fluid.logo {
+      width: 62%;
+      bottom: 0;
+    }
+    #testimoilas .item p {
+      font-style: italic;
+      margin-top: 8px;
+    }
+    footer ul li {
+      line-height: 27px;
+    }
+    .social-media a i {
+      font-size: 19px;
+    }
+
+    #sign-up aside h3 {
+      font-size: 17px;
+      font-family: "Europa-Bold";
+      margin: 0;
+      color: #fff;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .circle {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      box-shadow: 0px 0px 1px 1px #0000001a;
+    }
+    .center.right-pulse {
+      position: absolute;
+      right: 6%;
+      bottom: 52px;
+    }
+  }
+  @media (max-width: 360px) {
+    form#regForm {
+      margin: 0 auto 0 0;
+      margin-bottom: 16px;
+      padding-top: 41px;
+      background: transparent;
+    }
+    #sign-up h1 {
+      font-size: 24px;
+      line-height: 37px;
+    }
+    .colortextlink {
+      color: #00b388;
+      text-decoration: underline;
+      font-size: 15px;
+    }
+    .pricinglist {
+      flex-wrap: wrap;
+    }
+    .pricinglist li:nth-child(1) {
+      order: 2;
+    }
+    .pricinglist {
+      margin-top: 42px;
+    }
+    .pricinglist .main-li {
+      width: 100%;
+      text-align: center;
+    }
+    #emailmarketing {
+      margin-top: 0px;
+      padding: 0px 00px 19px 00px;
+    }
+    #freetrial {
+      padding-top: 7px;
+      padding-bottom: 16px;
+      margin-top: 0;
+    }
+    .pricinglist h5 {
+      font-size: 28px;
+    }
+
+    .themebtn {
+      height: 42px;
+      font-size: 14px;
+    }
+    .footerlogo {
+      margin-bottom: 18px;
+      width: 45%;
+    }
+    h1 {
+      font-size: 22px;
+      line-height: 29px;
+    }
+    .heading::after {
+      width: 66px;
+      height: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .heading {
+      font-size: 21px;
+      line-height: 26px;
+      padding-bottom: 13px;
+      text-align: center;
+    }
+    .banner-form input {
+      padding: 7px 7px;
+    }
+
+    .flex-button button {
+      margin: 6px 0px;
+      width: 100%;
+    }
+
+    .navbar-brand {
+      width: 221px;
+    }
+    #integrations .heading {
+      margin-bottom: 39px;
+      font-size: 20px;
+      line-height: 27px;
+    }
+
+    .themebtn-unfilled {
+      height: 42px;
+      font-size: 14px;
+    }
+    .input-group {
+      padding: 4px 6px;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 11px;
+    }
+
+    footer h3 {
+      font-size: 18px;
+      color: #292f30;
+      margin-bottom: 2px;
+      font-family: "Europa-Bold";
+    }
+    .ourstrength li h3 {
+      font-size: 16px;
+    }
+    .video-play-button::after {
+      width: 41px;
+      height: 41px;
+    }
+    .worktitle h3 {
+      font-size: 15px;
+      padding: 10px 00px;
+    }
+    .imgouter img {
+      margin: 0 auto;
+    }
+    .paragraph {
+      padding-top: 4px;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 340px) {
+    .center.right-pulse {
+      position: absolute;
+      right: 6%;
+      bottom: 45px;
+    }
+  }
+  @media (min-width : 368px) and (max-width: 700px){
+    .report_pieChart{
+      height: 350px;
+    }
+  }
+}
