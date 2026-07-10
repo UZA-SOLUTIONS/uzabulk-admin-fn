@@ -256,6 +256,7 @@ export const POST_FD_ORDER_STATUS = "/store/order/status"
 export const POST_ALIBABA_FREIGHT_TEMPLATES = "/store/alibaba/freight-templates"
 export const POST_ORDER_ALIBABA_LOGISTICS = "/store/order"
 export const POST_ORDER_ALIBABA_LOGISTICS_SYNC = "/store/order"
+export const POST_ORDER_WAREHOUSE_LOCATION = "/store/order"
 
 // Vendor Delivery Drivers
 export const API_FD_DRIVERS = "/store"

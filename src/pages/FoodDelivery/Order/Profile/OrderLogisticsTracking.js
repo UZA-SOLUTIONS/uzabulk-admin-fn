@@ -17,8 +17,10 @@ import {
 import toastr from "toastr"
 
 import {
+  CARGO_LOCATION_PRESETS,
   LOGISTICS_ORDER_STATUSES,
   alibabaDeliveryStatusBadgeClass,
+  resolveCargoLocationDisplay,
   sortTrackingHistory,
   trackingStatusLabelKey,
 } from "helpers/orderLogistics"
@@ -27,6 +29,7 @@ import {
   getAlibabaFreightTemplates,
   syncOrderAlibabaLogisticsTrace,
   updateOrderAlibabaLogistics,
+  updateOrderWarehouseLocation,
 } from "helpers/backend_helper"
 
 const selectStyles = {
@@ -51,7 +54,14 @@ const OrderLogisticsTracking = ({
   const [tradeId, setTradeId] = useState("")
   const [logisticsCompanyCode, setLogisticsCompanyCode] = useState("")
   const [waybillNumber, setWaybillNumber] = useState("")
+  const [cargoLocationPreset, setCargoLocationPreset] = useState(null)
+  const [cargoLocationCustom, setCargoLocationCustom] = useState("")
+  const [warehouseNotes, setWarehouseNotes] = useState("")
+  const [notifyCustomerLocation, setNotifyCustomerLocation] = useState(true)
+  const [warehouseSaving, setWarehouseSaving] = useState(false)
 
+  const warehouseLocation = order?.warehouseLocation || {}
+  const currentCargoLocation = resolveCargoLocationDisplay(warehouseLocation)
   const alibabaLogistics = order?.alibabaLogistics || {}
   const hasAlibabaItems =
     !!order?.alibabaOrderId || (order?.line_items || []).some(item => item?.offerId)
@@ -82,6 +92,31 @@ const OrderLogisticsTracking = ({
     alibabaLogistics.logisticsCompanyCode,
     alibabaLogistics.waybillNumber,
     order?.alibabaOrderId,
+  ])
+
+  useEffect(() => {
+    const saved = resolveCargoLocationDisplay(warehouseLocation)
+    const preset = CARGO_LOCATION_PRESETS.find(
+      option => option.value !== "__custom__" && option.value === saved
+    )
+    if (preset) {
+      setCargoLocationPreset(preset)
+      setCargoLocationCustom("")
+    } else if (saved) {
+      setCargoLocationPreset(
+        CARGO_LOCATION_PRESETS.find(option => option.value === "__custom__")
+      )
+      setCargoLocationCustom(saved)
+    } else {
+      setCargoLocationPreset(null)
+      setCargoLocationCustom("")
+    }
+    setWarehouseNotes(warehouseLocation.notes || "")
+  }, [
+    order?._id,
+    warehouseLocation.location,
+    warehouseLocation.label,
+    warehouseLocation.notes,
   ])
 
   const history = sortTrackingHistory(order?.trackingHistory || [])
@@ -159,6 +194,47 @@ const OrderLogisticsTracking = ({
     }
   }
 
+  const saveWarehouseLocation = async () => {
+    if (!orderId || warehouseSaving) return
+
+    const isCustom = cargoLocationPreset?.value === "__custom__"
+    const location = isCustom
+      ? cargoLocationCustom.trim()
+      : String(cargoLocationPreset?.value || "").trim()
+
+    if (!location) {
+      toastr.error(
+        t("cargo_location_required") ||
+          "Select where the cargo is (e.g. Dubai port, In transit)."
+      )
+      return
+    }
+
+    setWarehouseSaving(true)
+    try {
+      const res = await updateOrderWarehouseLocation(orderId, {
+        location,
+        notes: warehouseNotes,
+        notifyCustomer: notifyCustomerLocation,
+      })
+      if (res?.status === "failure") {
+        toastr.error(res?.message || "Failed to save warehouse location")
+        return
+      }
+      toastr.success(
+        notifyCustomerLocation
+          ? t("warehouse_location_notified") ||
+              "Location saved and customer notified"
+          : t("success") || "Saved"
+      )
+      onRefreshOrder?.()
+    } catch (e) {
+      toastr.error(t("something_went_wrong") || "Request failed")
+    } finally {
+      setWarehouseSaving(false)
+    }
+  }
+
   const handleSubmit = () => {
     if (!logisticsStatus?.value || statusUpdateLoading) return
     if (logisticsStatus.value === order?.orderStatus) {
@@ -218,6 +294,113 @@ const OrderLogisticsTracking = ({
               "No shipment milestones recorded yet. Update status below."}
           </p>
         )}
+
+        <div className="border-top pt-3 mt-2 mb-3">
+          <h6 className="mb-2">
+            {t("cargo_location") || "Cargo location"}
+          </h6>
+          <p className="text-muted small mb-3">
+            {t("cargo_location_hint") ||
+              "Tell the customer where their cargo is — e.g. China port, in transit, or Dubai port."}
+          </p>
+
+          {currentCargoLocation && (
+            <div className="alert alert-soft-info py-2 px-3 mb-3">
+              <strong>{t("current_location") || "Current location"}:</strong>{" "}
+              {currentCargoLocation}
+              {warehouseLocation.markedAt && (
+                <span className="text-muted small d-block mt-1">
+                  {t("last_updated") || "Updated"}:{" "}
+                  {moment(warehouseLocation.markedAt).format("DD MMM YYYY, LT")}
+                </span>
+              )}
+              {warehouseLocation.notes && (
+                <span className="small d-block mt-1">{warehouseLocation.notes}</span>
+              )}
+            </div>
+          )}
+
+          {canEdit && !isTerminal && (
+            <>
+              <FormGroup className="mb-2">
+                <Label className="text-muted font-size-12 mb-1">
+                  {t("cargo_location_select") || "Where is the cargo?"}
+                </Label>
+                <Select
+                  className="basic-single"
+                  classNamePrefix="select"
+                  isClearable
+                  placeholder={t("select_location") || "Select location…"}
+                  options={CARGO_LOCATION_PRESETS}
+                  value={cargoLocationPreset}
+                  onChange={setCargoLocationPreset}
+                  menuPortalTarget={
+                    typeof document !== "undefined" ? document.body : null
+                  }
+                  menuPosition="fixed"
+                  styles={selectStyles}
+                />
+              </FormGroup>
+              {cargoLocationPreset?.value === "__custom__" && (
+                <FormGroup className="mb-2">
+                  <Label className="text-muted font-size-12 mb-1">
+                    {t("cargo_location_custom") || "Custom location"}
+                  </Label>
+                  <Input
+                    bsSize="sm"
+                    value={cargoLocationCustom}
+                    onChange={e => setCargoLocationCustom(e.target.value)}
+                    placeholder={
+                      t("cargo_location_custom_placeholder") ||
+                      "e.g. Kigali customs, Mombasa port"
+                    }
+                  />
+                </FormGroup>
+              )}
+              <FormGroup className="mb-2">
+                <Label className="text-muted font-size-12 mb-1">
+                  {t("location_notes") || "Notes for customer (optional)"}
+                </Label>
+                <Input
+                  bsSize="sm"
+                  type="textarea"
+                  rows={2}
+                  value={warehouseNotes}
+                  onChange={e => setWarehouseNotes(e.target.value)}
+                  placeholder={
+                    t("cargo_location_notes_placeholder") ||
+                    "e.g. Expected to arrive at Dubai port next week"
+                  }
+                />
+              </FormGroup>
+              <FormGroup check className="mb-3">
+                <Label check>
+                  <Input
+                    type="checkbox"
+                    checked={notifyCustomerLocation}
+                    onChange={e => setNotifyCustomerLocation(e.target.checked)}
+                  />{" "}
+                  {t("notify_customer_cargo_location") ||
+                    "Notify customer about this location"}
+                </Label>
+              </FormGroup>
+              <Button
+                color="success"
+                size="sm"
+                disabled={warehouseSaving}
+                onClick={saveWarehouseLocation}
+              >
+                {warehouseSaving ? (
+                  <>
+                    <Spinner size="sm" className="mr-1" /> {t("loading_text")}
+                  </>
+                ) : (
+                  t("save_cargo_location") || "Save location"
+                )}
+              </Button>
+            </>
+          )}
+        </div>
 
         {hasAlibabaItems && (
           <div className="border-top pt-3 mt-2 mb-3">
@@ -441,27 +624,6 @@ const OrderLogisticsTracking = ({
       </CardBody>
     </Card>
   )
-}
-
-const ColFormGroup = ({ label, value, onChange, placeholder }) => (
-  <div className="col-md-4 mb-2">
-    <FormGroup className="mb-0">
-      <Label className="text-muted font-size-12 mb-1">{label}</Label>
-      <Input
-        bsSize="sm"
-        value={value}
-        placeholder={placeholder}
-        onChange={e => onChange(e.target.value)}
-      />
-    </FormGroup>
-  </div>
-)
-
-ColFormGroup.propTypes = {
-  label: PropTypes.string.isRequired,
-  value: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
-  placeholder: PropTypes.string,
 }
 
 OrderLogisticsTracking.propTypes = {

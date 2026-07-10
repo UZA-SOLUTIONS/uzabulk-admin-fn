@@ -450,6 +450,11 @@ export const syncOrderAlibabaLogisticsTrace = orderId =>
     `${API_VERSION}${url.POST_ORDER_ALIBABA_LOGISTICS_SYNC}/${orderId}/alibaba-logistics/sync`,
     {}
   )
+export const updateOrderWarehouseLocation = (orderId, data) =>
+  post(
+    `${API_VERSION}${url.POST_ORDER_WAREHOUSE_LOCATION}/${orderId}/warehouse-location`,
+    data
+  )
 
 // Vendor Delivery Drivers
 export const getFdDrivers = (storeType, data) =>

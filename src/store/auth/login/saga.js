@@ -227,7 +227,7 @@ function* loginUser({ payload: { user, history } }) {
   try {
     const response = yield call(postLogin, {
       role: "ADMIN",
-      email: user.email,
+      email: String(user.email || "").trim(),
       password: user.password,
     })
 
@@ -440,7 +440,23 @@ function* onGetLanguages({ payload }) {
 
 function* onUpdateSocket({ payload }) {
   try {
-    const socket = io(SOCKET_URL)
+    const socketUrl = (SOCKET_URL || "").trim()
+    if (!socketUrl || /^(off|false|disabled|0)$/i.test(socketUrl)) {
+      console.warn("[socket] realtime disabled (REACT_APP_API_SOCKET_URL); skipping connection")
+      return
+    }
+
+    const socket = io(socketUrl, {
+      // Avoid CORS failure when the host returns Access-Control-Allow-Origin: *
+      withCredentials: false,
+      // Don't spam retries when the socket host is down
+      reconnectionAttempts: 3,
+      timeout: 10000,
+    })
+
+    socket.on("connect_error", err => {
+      console.warn("[socket] connect_error:", err?.message || err)
+    })
 
     socket?.on("connect", order => {
       console.log("connected")

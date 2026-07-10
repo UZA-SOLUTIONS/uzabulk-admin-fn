@@ -17,6 +17,7 @@ export const TRACKING_STATUS_ORDER = [
   "delayed",
   "in_transit",
   "arrived_at_local_hub",
+  "cargo_located",
   "out_for_delivery",
   "delivery_attempted",
   "delivered",
@@ -73,3 +74,41 @@ export const sortTrackingHistory = (history = []) =>
 
 export const trackingStatusLabelKey = status =>
   status ? `tracking_${status}` : ""
+
+/** Common cargo / shipment locations — admin picks one or enters custom text. */
+export const CARGO_LOCATION_PRESETS = [
+  { value: "China port", label: "China port" },
+  { value: "China warehouse", label: "China warehouse" },
+  { value: "In transit (international)", label: "In transit (international)" },
+  { value: "Sea freight in transit", label: "Sea freight in transit" },
+  { value: "Air freight in transit", label: "Air freight in transit" },
+  { value: "Dubai port", label: "Dubai port" },
+  { value: "UAE hub", label: "UAE hub" },
+  { value: "Mombasa port", label: "Mombasa port" },
+  { value: "Dar es Salaam port", label: "Dar es Salaam port" },
+  { value: "Nairobi transit hub", label: "Nairobi transit hub" },
+  { value: "Kigali customs", label: "Kigali customs" },
+  { value: "Rwanda warehouse", label: "Rwanda warehouse" },
+  { value: "Ready for pickup", label: "Ready for pickup" },
+  { value: "Out for delivery", label: "Out for delivery" },
+  { value: "__custom__", label: "Other (type below)" },
+]
+
+export const resolveCargoLocationDisplay = (warehouseLocation = {}) => {
+  const location = String(
+    warehouseLocation.location || warehouseLocation.label || ""
+  ).trim()
+  if (location) return location
+
+  const legacy = [
+    warehouseLocation.zone,
+    warehouseLocation.aisle,
+    warehouseLocation.shelf,
+    warehouseLocation.bin,
+  ]
+    .map(part => String(part || "").trim())
+    .filter(Boolean)
+    .join("-")
+
+  return legacy
+}
