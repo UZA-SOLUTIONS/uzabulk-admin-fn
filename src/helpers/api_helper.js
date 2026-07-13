@@ -36,9 +36,72 @@ axiosApi.interceptors.request.use(
   error => Promise.reject(error)
 )
 
+let isForceLoggingOut = false
+
+const LogoutUser = () => {
+  if (isForceLoggingOut || typeof window === "undefined") return
+  isForceLoggingOut = true
+  localStorage.clear()
+  window.location.replace("/login")
+}
+
+const hasStoredAuthToken = () => {
+  try {
+    const auth = JSON.parse(localStorage.getItem(USER_AUTH_KEY) || "{}")
+    return !!auth?.token
+  } catch (err) {
+    return false
+  }
+}
+
+const isInvalidSessionResponse = data => {
+  if (!data || data.status !== "failure") return false
+  if (data.isInvalidToken) return true
+  // showUnathorizedErrorResponse always sets this description for expired/invalid auth
+  if (data.error_description === "Invalid Login Credential!") return true
+  const message = String(data.message || "").toLowerCase()
+  return (
+    message.includes("token expired")
+    || message.includes("invalid token")
+    || message === "invalid_token"
+  )
+}
+
+const handleAuthFailureResponse = data => {
+  if (!data || data.status !== "failure") {
+    return data
+  }
+  if (isInvalidSessionResponse(data)) {
+    LogoutUser()
+    return
+  }
+  if (data.message === "ACCESS_DENIED") {
+    store.dispatch(showAlert())
+    return
+  }
+  return data
+}
+
 axiosApi.interceptors.response.use(
-  response => response,
-  error => Promise.reject(error)
+  response => {
+    // Admin API often returns HTTP 200 with status:"failure" + isInvalidToken
+    if (hasStoredAuthToken() && isInvalidSessionResponse(response?.data)) {
+      LogoutUser()
+    }
+    return response
+  },
+  error => {
+    // Hard HTTP auth failures (if any endpoint uses real 401)
+    const status = error?.response?.status
+    const data = error?.response?.data
+    if (
+      hasStoredAuthToken()
+      && (status === 401 || isInvalidSessionResponse(data))
+    ) {
+      LogoutUser()
+    }
+    return Promise.reject(error)
+  }
 )
 
 export const updateToken = token => {
@@ -56,11 +119,6 @@ if (typeof window !== "undefined") {
 }
 
 updateToken(obj ? obj.token : null)
-
-const LogoutUser = () => {
-  localStorage.clear()
-  window.location.replace("/login")
-}
 // const PlanExpired = () => {
 //   localStorage.clear()
 //   window.location.replace("/expireplan")
@@ -73,22 +131,7 @@ export async function get(url, config) {
   }
 
   return await axiosApi.get(url, { ...config }).then(response => {
-    if (response.data.status === "failure") {
-      if (response.data.error_description == "Invalid Login Credential!") {
-        // return LogoutUser()
-        return LogoutUser()
-      }
-      if (response.data.isInvalidToken) {
-        LogoutUser()
-        // return { status: "failure" }
-      } else if (response.data.message === "ACCESS_DENIED") {
-        store.dispatch(showAlert())
-      } else {
-        return response.data
-      }
-    } else {
-      return response.data
-    }
+    return handleAuthFailureResponse(response.data)
   })
 }
 
@@ -98,18 +141,7 @@ export async function post(url, data, config) {
   }
 
   return axiosApi.post(url, data, { ...config }).then(response => {
-    if (response.data.status === "failure") {
-      if (response.data.isInvalidToken) {
-        LogoutUser()
-        // return { status: "failure" }
-      } else if (response.data.message === "ACCESS_DENIED") {
-        store.dispatch(showAlert())
-      } else {
-        return response.data
-      }
-    } else {
-      return response.data
-    }
+    return handleAuthFailureResponse(response.data)
   })
 }
 
@@ -119,18 +151,7 @@ export async function put(url, data, config) {
   }
 
   return axiosApi.put(url, { ...data }, { ...config }).then(response => {
-    if (response.data.status === "failure") {
-      if (response.data.isInvalidToken) {
-        LogoutUser()
-        // return { status: "failure" }
-      } else if (response.data.message === "ACCESS_DENIED") {
-        store.dispatch(showAlert())
-      } else {
-        return response.data
-      }
-    } else {
-      return response.data
-    }
+    return handleAuthFailureResponse(response.data)
   })
 }
 
@@ -140,17 +161,6 @@ export async function del(url, config) {
   }
 
   return await axiosApi.delete(url, { ...config }).then(response => {
-    if (response.data.status === "failure") {
-      if (response.data.isInvalidToken) {
-        LogoutUser()
-        // return { status: "failure" }
-      } else if (response.data.message === "ACCESS_DENIED") {
-        store.dispatch(showAlert())
-      } else {
-        return response.data
-      }
-    } else {
-      return response.data
-    }
+    return handleAuthFailureResponse(response.data)
   })
 }
