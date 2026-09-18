@@ -78,9 +78,9 @@ const ProductBatch = ({
     isOpen: false,
   })
   const [filter, setFilter] = useState({
-    orderBy: "date_created_utc",
+    orderBy: "createdAt",
     order: -1,
-    page: 0,
+    page: 1,
     limit: 20,
     search: "",
     fields: [
@@ -96,6 +96,7 @@ const ProductBatch = ({
     sizePerPage: 20,
     totalSize: totalPromotions,
     custom: true,
+    page: filter.page || 1,
     onPageChange: page => setFilter(prevState => ({ ...prevState, page })),
   }
   const { SearchBar } = Search
@@ -158,20 +159,14 @@ const ProductBatch = ({
     }
 
     if (type === "sort") {
-      if (sortField == "createdAt") {
-        sortField = "createdAt"
-      }
-
-      if (sortOrder == "desc") {
-        sortOrder = -1
-      } else if (sortOrder == "asc") {
-        sortOrder = 1
-      }
+      const nextOrderBy = sortField === "createdAt" ? "createdAt" : "createdAt"
+      const nextOrder = sortOrder == "asc" ? 1 : -1
 
       setFilter(prevState => ({
         ...prevState,
-        orderBy: sortField,
-        order: sortOrder,
+        orderBy: nextOrderBy,
+        order: nextOrder,
+        page: 1,
       }))
     }
   }
@@ -212,14 +207,37 @@ const ProductBatch = ({
     setFilter(prevState => ({
       ...prevState,
       fields: [{ fieldName, fieldValue }],
+      page: 1,
+      orderBy: "createdAt",
+      order: -1,
     }))
   }
 
   const onSearch = event => {
     event.preventDefault()
 
-    setFilter(prevState => ({ ...prevState, search: searchText, page: 1 }))
+    setFilter(prevState => ({
+      ...prevState,
+      search: (searchText || "").trim(),
+      page: 1,
+      orderBy: "createdAt",
+      order: -1,
+    }))
   }
+
+  const getResetListFilter = () => ({
+    orderBy: "createdAt",
+    order: -1,
+    page: 1,
+    limit: 20,
+    search: "",
+    fields: [
+      {
+        fieldName: "",
+        fieldValue: "",
+      },
+    ],
+  })
 
   const onSelect = (row, isSelect) => {
     if (isSelect) {
@@ -307,8 +325,14 @@ const ProductBatch = ({
                                         value={orderIds}
                                         onChange={(e) => {
                                           const newValue = e.target.value;
-                                          const offerIds = orderIds.split(",");
-                                          if (/^[0-9,]*$/.test(newValue) && offerIds.length < 50) {
+                                          if (!/^[0-9,\s]*$/.test(newValue)) {
+                                            return
+                                          }
+                                          const offerIds = newValue
+                                            .split(",")
+                                            .map(id => id.trim())
+                                            .filter(Boolean)
+                                          if (offerIds.length <= 50) {
                                             setOrderIds(newValue);
                                           }
                                         }}
@@ -326,9 +350,19 @@ const ProductBatch = ({
                                           color="success"
                                           className="btn-rounded waves-effect waves-light"
                                           onClick={async () => {
-
-                                            const offerIds = orderIds.split(",");
-                                            onAddPromotions({ offerIds }, filter);
+                                            const offerIds = orderIds
+                                              .split(",")
+                                              .map(id => id.trim())
+                                              .filter(Boolean)
+                                            if (!offerIds.length) {
+                                              return
+                                            }
+                                            const nextFilter = getResetListFilter()
+                                            setSearchText("")
+                                            setFilter(nextFilter)
+                                            onAddPromotions({ offerIds }, nextFilter, () =>
+                                              setOrderIds("")
+                                            );
                                           }}
                                         >
                                           <i className="mdi mdi-plus" />
@@ -380,17 +414,17 @@ const ProductBatch = ({
                                   </div>
 
                                   <div className="search d-flex align-items-center">
-                                    {/* <div className="pl-3">
+                                    <div className="pl-3">
                                       <SearchInput
-                                        {...toolkitProps.searchProps}
+                                        onSearch={setSearchText}
                                         triggerSearch={onSearch}
-                                        placeholder={props.t("search")}
+                                        placeholder={`${props.t("search")} ${props.t("title")} / ${props.t("offerId")}`}
                                         searchText={searchText}
                                       />
-                                    </div> */}
+                                    </div>
 
-                                    {!!filter.fields[0]?.fieldName ||
-                                      (!!filter.search && (
+                                    {(!!filter.fields[0]?.fieldName ||
+                                      !!filter.search) && (
                                         <div
                                           className="mr-4"
                                           style={{
@@ -401,16 +435,7 @@ const ProductBatch = ({
                                             to="#"
                                             onClick={e => {
                                               e.preventDefault()
-                                              setFilter(prevState => ({
-                                                ...prevState,
-                                                fields: [
-                                                  {
-                                                    fieldName: "",
-                                                    fieldValue: "",
-                                                  },
-                                                ],
-                                                search: "",
-                                              }))
+                                              setFilter(getResetListFilter())
                                               setSearchText("")
                                             }}
                                             className=""
@@ -418,7 +443,7 @@ const ProductBatch = ({
                                             {props.t("clear_filters")}
                                           </Link>
                                         </div>
-                                      ))}
+                                      )}
                                   </div>
                                 </div>
                               </Col>
@@ -559,7 +584,8 @@ const mapStateToProps = ({ Settings, ProductBatchReducer }) => ({
 
 const mapDispatchToProps = dispatch => ({
   onGetPromotions: data => dispatch(getProductBatch(data)),
-  onAddPromotions: (data, filter) => dispatch(addProductBatch(data, filter)),
+  onAddPromotions: (data, filter, onSuccess) =>
+    dispatch(addProductBatch(data, filter, onSuccess)),
 
   onDeletePromotion: (data, callback) =>
     dispatch(deletePromotion(data, callback)),

@@ -1,25 +1,19 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import PropTypes from "prop-types"
 import { connect } from "react-redux"
-import { withRouter, Link } from "react-router-dom"
-import { isEmpty } from "lodash"
+import { withRouter } from "react-router-dom"
 import BootstrapTable from "react-bootstrap-table-next"
 import paginationFactory, {
   PaginationListStandalone,
   PaginationProvider,
 } from "react-bootstrap-table2-paginator"
-import ToolkitProvider, { Search } from "react-bootstrap-table2-toolkit"
-import AnimateHeight from "react-animate-height"
+import ToolkitProvider from "react-bootstrap-table2-toolkit"
 
 import {
-  Button,
   Card,
   CardBody,
   Col,
   Container,
-  FormGroup,
-  Input,
-  Label,
   Row,
   Spinner,
 } from "reactstrap"
@@ -32,32 +26,43 @@ import { withTranslation } from "react-i18next"
 //Import Breadcrumb
 import Breadcrumbs from "components/Common/Breadcrumb2"
 import {
-  getPromotions,
-  deletePromotion,
-  putPromotionsStatus,
-  getProductBatch,
-  addProductBatch,
   getProductBatchDetail
 } from "store/actions"
-import ListColumns, { selectRow } from "./ListColumns"
-import ConfirmModal from "./ConfirmModal"
+import ListColumns from "./ListColumns"
 
 // Components
 import NotFound from "pages/Utility/pages-404-content"
 import { SLUGS_NAME, isProductBatchEnabled } from "helpers/contants"
-import { settings } from "nprogress"
-import { useLocation, useParams } from "react-router-dom/cjs/react-router-dom.min"
+import { useParams } from "react-router-dom/cjs/react-router-dom.min"
+
+const PAGE_SIZE = 20
+
+const toTime = value => {
+  const time = value ? new Date(value).getTime() : 0
+  return Number.isNaN(time) ? 0 : time
+}
+
+const sortProductsNewestFirst = (products = [], batchCreatedAt) => {
+  return products
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      const aTime =
+        toTime(a.item.processedAt) ||
+        toTime(a.item.createdAt) ||
+        toTime(batchCreatedAt)
+      const bTime =
+        toTime(b.item.processedAt) ||
+        toTime(b.item.createdAt) ||
+        toTime(batchCreatedAt)
+      if (bTime !== aTime) return bTime - aTime
+      return a.index - b.index
+    })
+    .map(({ item }) => item)
+}
 
 const ProductBatchDetails = ({
-  accessLevel,
   history,
-  promotions,
-  totalPromotions,
-  onGetPromotions,
-  onDeletePromotion,
-  onPutPromotionsStatus,
   batchDetails,
-  onAddPromotions,
   onGetDetails,
   loading,
   ...props
@@ -66,205 +71,62 @@ const ProductBatchDetails = ({
     return <NotFound />
   }
 
-  const { id: batchId } = useParams();
-  const [orderIds, setOrderIds] = useState("");
-  const [accesses, setaccesses] = useState({
-    canAdd: false,
-    canEdit: false,
-    canDelete: false,
-    canBlock: false,
-  })
-  const [selected, setSelected] = useState([])
-  const [confirmModal, setConfirmModal] = useState({
-    isOpen: false,
-    promotionId: null,
-  })
-  const [confirmSelectedModal, setConfirmSelectedModal] = useState({
-    isOpen: false,
-  })
-  const [filter, setFilter] = useState({
-    orderBy: "date_created_utc",
-    order: -1,
-    page: 0,
-    limit: 20,
-    search: "",
-    fields: [
-      {
-        fieldName: "",
-        fieldValue: "",
-      },
-    ],
-  })
+  const { id: batchId } = useParams()
   const [searchText, setSearchText] = useState("")
-  const [promotionsList, setPromotionsList] = useState([])
+  const [appliedSearch, setAppliedSearch] = useState("")
+  const [page, setPage] = useState(1)
+
+  useEffect(() => {
+    if (batchId) {
+      onGetDetails(batchId)
+      setSearchText("")
+      setAppliedSearch("")
+      setPage(1)
+    }
+  }, [batchId])
+
+  const sortedProducts = useMemo(
+    () =>
+      sortProductsNewestFirst(
+        batchDetails?.productIds || [],
+        batchDetails?.createdAt
+      ).map(product => ({
+        ...product,
+        createdAt:
+          product.processedAt || product.createdAt || batchDetails?.createdAt,
+      })),
+    [batchDetails]
+  )
+
+  const filteredProducts = useMemo(() => {
+    const query = (appliedSearch || "").trim().toLowerCase()
+    if (!query) return sortedProducts
+    return sortedProducts.filter(product =>
+      String(product.offerId || "").toLowerCase().includes(query)
+    )
+  }, [sortedProducts, appliedSearch])
+
+  const pagedProducts = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE
+    return filteredProducts.slice(start, start + PAGE_SIZE)
+  }, [filteredProducts, page])
+
   const pageOptions = {
-    sizePerPage: 20,
-    totalSize: totalPromotions,
+    sizePerPage: PAGE_SIZE,
+    totalSize: filteredProducts.length,
     custom: true,
-    onPageChange: page => setFilter(prevState => ({ ...prevState, page })),
-  }
-  const { SearchBar } = Search
-
-  useEffect(() => {
-    if (!accessLevel) {
-      const data = {
-        canAdd: true,
-        canEdit: true,
-        canDelete: true,
-        canBlock: true,
-      }
-
-      return setaccesses(data)
-    }
-
-    const data = {
-      canAdd: false,
-      canEdit: false,
-      canDelete: false,
-      canBlock: false,
-    }
-
-    accessLevel?.map(item => {
-      switch (item.label) {
-        case "CREATE":
-          data.canAdd = item.value
-          break
-
-        case "UPDATE":
-          data.canEdit = item.value
-          break
-
-        case "DELETE":
-          data.canDelete = item.value
-          break
-
-        case "BLOCK":
-          data.canBlock = item.value
-          break
-      }
-    })
-
-    setaccesses(data)
-  }, [JSON.stringify(accessLevel)])
-
-  useEffect(() => {
-    onGetDetails(batchId)
-    setPromotionsList(batchDetails?.productIds || [])
-  }, [onGetDetails])
-
-  useEffect(() => {
-    setPromotionsList(batchDetails?.productIds || [])
-  }, [batchDetails])
-
-  // eslint-disable-next-line no-unused-vars
-  const handleTableChange = (type, { searchText, sortField, sortOrder }) => {
-    if (type === "search") {
-      setSearchText(searchText)
-    }
-
-    if (type === "sort") {
-      if (sortField == "createdAt") {
-        sortField = "createdAt"
-      }
-
-      if (sortOrder == "desc") {
-        sortOrder = -1
-      } else if (sortOrder == "asc") {
-        sortOrder = 1
-      }
-
-      setFilter(prevState => ({
-        ...prevState,
-        orderBy: sortField,
-        order: sortOrder,
-      }))
-    }
-  }
-
-  const toggleConfirmModal = promotionId => {
-    setConfirmModal(prevState => ({ isOpen: !prevState.isOpen, promotionId }))
-  }
-
-  const toggleConfirmSelectedModal = () => {
-    setConfirmSelectedModal(prevState => ({ isOpen: !prevState.isOpen }))
-  }
-
-  const removeConfirm = () => {
-    const { promotionId, isOpen } = confirmModal
-
-    const onComplete = () => {
-      onGetPromotions(filter)
-    }
-
-    setConfirmModal({ isOpen: !isOpen, promotionId: null })
-    onDeletePromotion({ _id: promotionId }, onComplete)
-  }
-
-  const removeSelectedConfirm = () => {
-    const onComplete = () => {
-      setSelected([])
-      onGetPromotions(filter)
-    }
-
-    setConfirmSelectedModal({ isOpen: false })
-    onPutPromotionsStatus({ _id: selected, status: "archived" }, onComplete)
-  }
-
-  const onStatusChange = value => {
-    const fieldName = !!value ? "status" : ""
-    const fieldValue = value
-
-    setFilter(prevState => ({
-      ...prevState,
-      fields: [{ fieldName, fieldValue }],
-    }))
+    page,
+    onPageChange: nextPage => setPage(nextPage || 1),
   }
 
   const onSearch = event => {
     event.preventDefault()
-
-    setFilter(prevState => ({ ...prevState, search: searchText, page: 1 }))
-  }
-
-  const onSelect = (row, isSelect) => {
-    if (isSelect) {
-      setSelected(prevSelected => [...prevSelected, row._id])
-    } else {
-      setSelected(prevSelected => prevSelected.filter(x => x !== row._id))
-    }
-  }
-
-  const onSelectAll = (isSelect, rows) => {
-    const ids = rows.map(r => r._id)
-    if (isSelect) {
-      setSelected(ids)
-    } else {
-      setSelected([])
-    }
-  }
-
-  const handlePromotionStatusChange = status => {
-    const callback = () => {
-      setSelected([])
-      onGetPromotions(filter)
-    }
-
-    onPutPromotionsStatus({ _id: selected, status }, callback)
+    setAppliedSearch((searchText || "").trim())
+    setPage(1)
   }
 
   return (
     <React.Fragment>
-      <ConfirmModal
-        isOpen={confirmModal.isOpen}
-        toggle={toggleConfirmModal}
-        onConfirm={removeConfirm}
-      />
-
-      <ConfirmModal
-        isOpen={confirmSelectedModal.isOpen}
-        toggle={toggleConfirmSelectedModal}
-        onConfirm={removeSelectedConfirm}
-      />
       <div className="page-content">
         <Container fluid>
           <Breadcrumbs
@@ -282,20 +144,48 @@ const ProductBatchDetails = ({
                   >
                     {({ paginationProps, paginationTableProps }) => (
                       <ToolkitProvider
-                        keyField="_id"
-                        data={promotionsList || []}
+                        keyField="offerId"
+                        data={pagedProducts}
                         columns={ListColumns(
                           history,
-                          toggleConfirmModal,
-                          accesses,
+                          () => {},
+                          {},
                           props.t
                         )}
                         bootstrap4
-                        search
                       >
                         {toolkitProps => (
                           <React.Fragment>
-
+                            <Row className="mb-3">
+                              <Col xs={12} md={7} lg={8} xl={7}>
+                                <div className="search d-flex align-items-center">
+                                  <SearchInput
+                                    onSearch={setSearchText}
+                                    triggerSearch={onSearch}
+                                    placeholder={`${props.t("search")} ${props.t("offerId")}`}
+                                    searchText={searchText}
+                                  />
+                                  {!!appliedSearch && (
+                                    <div
+                                      className="ml-3"
+                                      style={{ minWidth: "73px" }}
+                                    >
+                                      <a
+                                        href="#"
+                                        onClick={e => {
+                                          e.preventDefault()
+                                          setSearchText("")
+                                          setAppliedSearch("")
+                                          setPage(1)
+                                        }}
+                                      >
+                                        {props.t("clear_filters")}
+                                      </a>
+                                    </div>
+                                  )}
+                                </div>
+                              </Col>
+                            </Row>
                             <Row>
                               <Col xl="12">
                                 <div className="table-responsive spinner-content">
@@ -309,7 +199,6 @@ const ProductBatchDetails = ({
                                     }
                                     headerWrapperClasses={"thead-light"}
                                     {...toolkitProps.baseProps}
-                                    onTableChange={handleTableChange}
                                     {...paginationTableProps}
                                     defaultSorted={[
                                       {
@@ -362,30 +251,18 @@ const ProductBatchDetails = ({
 }
 
 ProductBatchDetails.propTypes = {
-  promotions: PropTypes.array,
-  totalPromotions: PropTypes.number,
-  onGetPromotions: PropTypes.func,
-  onDeletePromotion: PropTypes.func,
-  onPutPromotionsStatus: PropTypes.func,
+  batchDetails: PropTypes.object,
+  onGetDetails: PropTypes.func,
 }
 
 const mapStateToProps = ({ Settings, ProductBatchReducer }) => ({
   settings: Settings.settings,
   loading: ProductBatchReducer.loading,
-  promotions: ProductBatchReducer.batch,
-  totalPromotions: ProductBatchReducer.totalCount,
   batchDetails: ProductBatchReducer.details
 })
 
 const mapDispatchToProps = dispatch => ({
-  onGetPromotions: data => dispatch(getProductBatch(data)),
-  onAddPromotions: (data, filter) => dispatch(addProductBatch(data, filter)),
   onGetDetails: (id) => dispatch(getProductBatchDetail(id)),
-
-  onDeletePromotion: (data, callback) =>
-    dispatch(deletePromotion(data, callback)),
-  onPutPromotionsStatus: (data, callback) =>
-    dispatch(putPromotionsStatus(data, callback)),
 })
 
 export default withRouter(

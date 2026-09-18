@@ -80,7 +80,6 @@ const ProductBatch = (state = INIT_STATE, action) => {
             }
 
         case GET_PRODUCTS_BATCH_DETAIL_SUCCESS:
-            console.log("reducerrrr",action.result?.data)
             return {
                 ...state,
                 details: action.result.data || {},

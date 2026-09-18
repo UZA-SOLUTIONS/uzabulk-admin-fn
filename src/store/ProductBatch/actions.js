@@ -34,9 +34,9 @@ export const getProductBatchFail = error => ({
 })
 
 // Add Batch
-export const addProductBatch = (promotion, filter) => ({
+export const addProductBatch = (promotion, filter, onSuccess) => ({
     type: ADD_PRODUCTS_BATCH,
-    payload: { promotion, filter },
+    payload: { promotion, filter, onSuccess },
 })
 
 export const addProductBatchFail = error => ({

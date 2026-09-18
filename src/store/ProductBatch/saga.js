@@ -37,7 +37,7 @@ function* fetchBatch({ payload }) {
     }
 };
 
-function* addNewBatch({ payload: { promotion, filter } }) {
+function* addNewBatch({ payload: { promotion, filter, onSuccess } }) {
     try {
         const response = yield call(addProductBatch, promotion)
 
@@ -48,6 +48,9 @@ function* addNewBatch({ payload: { promotion, filter } }) {
         }
 
         yield put(addProductBatchSuccess())
+        if (onSuccess) {
+            onSuccess()
+        }
         yield put(getProductBatchLIst(filter));
     } catch (error) {
         yield put(addProductBatchFail("Internal Error!"))

@@ -1,6 +1,5 @@
 import React from "react"
-import { Link } from "react-router-dom"
-import { Badge, Input, Label, UncontrolledTooltip } from "reactstrap"
+import { Badge, Input, Label } from "reactstrap"
 import moment from "moment-timezone"
 
 export const selectRow = props => ({
@@ -28,11 +27,23 @@ export const selectRow = props => ({
   ...props,
 })
 
+const formatDateTime = value => {
+  if (!value || !moment(value).isValid()) return "-"
+  return moment(value).format("DD MMM YYYY, LT")
+}
+
+const getStatusBadge = status => {
+  if (status === "completed") return "success"
+  if (status === "processing") return "warning"
+  if (status === "already exist") return "info"
+  return "danger"
+}
+
 const ListColumns = (history, toggleConfirmModal, accesses, t) => [
   {
     text: t("offerId"),
     dataField: "offerId",
-    formatter: (_, row) => row?.offerId,
+    formatter: (_, row) => row?.offerId || "-",
   },
   {
     dataField: "status",
@@ -40,12 +51,7 @@ const ListColumns = (history, toggleConfirmModal, accesses, t) => [
     formatter: (cellContent, row) => (
       <Badge
         className={
-          "text-capitalize font-size-13 badge-soft-" +
-          (row.status == "active"
-            ? "success"
-            : row.status == "inactive"
-              ? "warning"
-              : "danger")
+          "text-capitalize font-size-13 badge-soft-" + getStatusBadge(row.status)
         }
         color={row.badgeClass}
       >
@@ -56,7 +62,8 @@ const ListColumns = (history, toggleConfirmModal, accesses, t) => [
   {
     text: t("created_at"),
     dataField: "createdAt",
-    formatter: (_, row) => moment(row.createdAt).format("DD MMM YYYY"),
+    formatter: (_, row) =>
+      formatDateTime(row.processedAt || row.createdAt),
   },
 ]
 

@@ -1,5 +1,4 @@
 import React from "react"
-import { Link } from "react-router-dom"
 import { Badge, Input, Label, UncontrolledTooltip } from "reactstrap"
 import moment from "moment-timezone"
 
@@ -28,12 +27,24 @@ export const selectRow = props => ({
   ...props,
 })
 
+const formatDateTime = value => {
+  if (!value || !moment(value).isValid()) return "-"
+  return moment(value).format("DD MMM YYYY, LT")
+}
+
+const getStatusBadge = status => {
+  if (status === "completed") return "success"
+  if (status === "processing") return "warning"
+  if (status === "already exist") return "info"
+  return "danger"
+}
+
 const ListColumns = (history, toggleConfirmModal, accesses, t) => [
   {
     dataField: "title",
     text: t("title"),
     formatter: (_, row) => (
-      <div className="text-capitalize">{row.title}</div>
+      <div className="text-capitalize">{row.title || "-"}</div>
     ),
   },
   {
@@ -42,12 +53,7 @@ const ListColumns = (history, toggleConfirmModal, accesses, t) => [
     formatter: (cellContent, row) => (
       <Badge
         className={
-          "text-capitalize font-size-13 badge-soft-" +
-          (row.status == "active"
-            ? "success"
-            : row.status == "inactive"
-              ? "warning"
-              : "danger")
+          "text-capitalize font-size-13 badge-soft-" + getStatusBadge(row.status)
         }
         color={row.badgeClass}
       >
@@ -56,9 +62,31 @@ const ListColumns = (history, toggleConfirmModal, accesses, t) => [
     ),
   },
   {
+    dataField: "total",
+    text: t("products"),
+    formatter: (_, row) => {
+      const total = row.total || 0
+      const processing = row.processing || 0
+      const completed = row.completed || 0
+      const alreadyExist = row.alreadyExist || 0
+      return (
+        <span>
+          {total}
+          {total > 0 && (
+            <small className="text-muted d-block">
+              {completed} {t("completed")}, {processing} {t("processing")}
+              {alreadyExist > 0 ? `, ${alreadyExist} ${t("already exist")}` : ""}
+            </small>
+          )}
+        </span>
+      )
+    },
+  },
+  {
     text: t("created_at"),
     dataField: "createdAt",
-    formatter: (_, row) => moment(row.createdAt).format("DD MMM YYYY"),
+    sort: true,
+    formatter: (_, row) => formatDateTime(row.createdAt),
   },
   {
     isDummyField: true,
@@ -66,9 +94,13 @@ const ListColumns = (history, toggleConfirmModal, accesses, t) => [
     dataField: "action",
     formatter: (_, row) => (
       <>
-
-        <i style={{ cursor: "pointer" }} className="far fa-eye mr-3" id="viewtooltip" onClick={() => history.push(`/product-batch/details/${row?._id}`)} />
-        <UncontrolledTooltip placement="top" target="viewtooltip">
+        <i
+          style={{ cursor: "pointer" }}
+          className="far fa-eye mr-3"
+          id={`viewtooltip-${row?._id}`}
+          onClick={() => history.push(`/product-batch/details/${row?._id}`)}
+        />
+        <UncontrolledTooltip placement="top" target={`viewtooltip-${row?._id}`}>
           View Details
         </UncontrolledTooltip>
       </>
