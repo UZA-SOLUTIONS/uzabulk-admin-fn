@@ -877,8 +877,13 @@ export const deletePackageServicePackage = ({ id }) =>
 export const getProductBatch = data =>
   post(API_VERSION + url.GET_BATCH_PRODUCTS, data)
 
+const LONG_IMPORT_TIMEOUT = { ...authHeader(), timeout: 120 * 1000 }
+
 export const addProductBatch = data =>
-  post(API_VERSION + url.ADD_BATCH_PRODUCTS, data)
+  post(API_VERSION + url.ADD_BATCH_PRODUCTS, data, LONG_IMPORT_TIMEOUT)
 
 export const getProductBatchDetails = data =>
   get(API_VERSION + url.VIEW_BATCH_PRODUCTS + data)
+
+export const reprocessProductBatch = data =>
+  post(API_VERSION + url.REPROCESS_BATCH_PRODUCTS, data, LONG_IMPORT_TIMEOUT)

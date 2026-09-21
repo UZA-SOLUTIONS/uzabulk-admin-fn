@@ -12,6 +12,7 @@ import ToolkitProvider, { Search } from "react-bootstrap-table2-toolkit"
 import AnimateHeight from "react-animate-height"
 
 import {
+  Alert,
   Button,
   Card,
   CardBody,
@@ -25,6 +26,8 @@ import {
 } from "reactstrap"
 
 import SearchInput from "components/Common/SearchInput"
+import toastr from "toastr"
+import "toastr/build/toastr.min.css"
 
 //i18n
 import { withTranslation } from "react-i18next"
@@ -46,6 +49,15 @@ import NotFound from "pages/Utility/pages-404-content"
 import { SLUGS_NAME, isProductBatchEnabled } from "helpers/contants"
 import { settings } from "nprogress"
 
+const parseOfferIds = (value = "") => {
+  const text = String(value)
+  const fromUrls = [...text.matchAll(/offer\/(\d+)/gi)].map(match => match[1])
+  if (fromUrls.length) {
+    return [...new Set(fromUrls)]
+  }
+  return [...new Set(text.match(/(\d{6,})/g) || [])]
+}
+
 const ProductBatch = ({
   accessLevel,
   history,
@@ -56,6 +68,8 @@ const ProductBatch = ({
   onPutPromotionsStatus,
   onAddPromotions,
   loading,
+  adding,
+  batchError,
   ...props
 }) => {
   if (!isProductBatchEnabled(props.settings)) {
@@ -239,6 +253,46 @@ const ProductBatch = ({
     ],
   })
 
+  const handleAddBatch = () => {
+    const offerIds = parseOfferIds(orderIds)
+    if (!offerIds.length) {
+      toastr.error("Paste a 1688 offer ID or link first.")
+      return
+    }
+    if (offerIds.length > 50) {
+      toastr.error("You can add at most 50 offer IDs per batch.")
+      return
+    }
+
+    const nextFilter = getResetListFilter()
+    setSearchText("")
+    setFilter(nextFilter)
+    onAddPromotions({ offerIds }, nextFilter, response => {
+      const data = response?.data || {}
+      if (response?.status === "failure") {
+        toastr.warning(response.message || "This offer is already in a batch.")
+        if (data.batchId) {
+          history.push(`/product-batch/details/${data.batchId}`)
+        }
+        return
+      }
+      const importedName = (data.items || []).find(item => item.name)?.name
+      toastr.success(
+        data.requeued
+          ? importedName
+            ? `Imported: ${importedName}`
+            : "Incomplete offers were imported now. Check the batch details for the product name."
+          : data.skipped?.length
+            ? "Batch created. Some offer IDs were already in another batch."
+            : "Batch created. Import usually finishes within 10 minutes."
+      )
+      setOrderIds("")
+      if (data._id) {
+        history.push(`/product-batch/details/${data._id}`)
+      }
+    })
+  }
+
   const onSelect = (row, isSelect) => {
     if (isSelect) {
       setSelected(prevSelected => [...prevSelected, row._id])
@@ -308,6 +362,24 @@ const ProductBatch = ({
                       >
                         {toolkitProps => (
                           <React.Fragment>
+                            {batchError?.message && (
+                              <Alert color="warning" className="mb-3">
+                                {batchError.message}
+                                {batchError.data?.batchId && (
+                                  <Button
+                                    color="link"
+                                    className="p-0 ml-2"
+                                    onClick={() =>
+                                      history.push(
+                                        `/product-batch/details/${batchError.data.batchId}`
+                                      )
+                                    }
+                                  >
+                                    View existing batch
+                                  </Button>
+                                )}
+                              </Alert>
+                            )}
                             <Row>
                               <form onSubmit={(e) => e.preventDefault()}>
                                 <Row>
@@ -323,20 +395,12 @@ const ProductBatch = ({
                                       <Input
                                         required
                                         value={orderIds}
-                                        onChange={(e) => {
-                                          const newValue = e.target.value;
-                                          if (!/^[0-9,\s]*$/.test(newValue)) {
-                                            return
-                                          }
-                                          const offerIds = newValue
-                                            .split(",")
-                                            .map(id => id.trim())
-                                            .filter(Boolean)
-                                          if (offerIds.length <= 50) {
-                                            setOrderIds(newValue);
-                                          }
-                                        }}
+                                        placeholder="Paste 1688 link or offer ID, e.g. 1029472470246"
+                                        onChange={e => setOrderIds(e.target.value)}
                                       />
+                                      <small className="text-muted">
+                                        You can paste a full 1688 URL. Duplicate offers open the existing batch instead of failing silently.
+                                      </small>
                                     </FormGroup>
                                   </Col>
                                   <Col
@@ -346,26 +410,17 @@ const ProductBatch = ({
                                     <div className="text-sm-left text-md-right mb-3">
                                       {accesses.canAdd && (
                                         <Button
-                                          type="submit"
+                                          type="button"
                                           color="success"
                                           className="btn-rounded waves-effect waves-light"
-                                          onClick={async () => {
-                                            const offerIds = orderIds
-                                              .split(",")
-                                              .map(id => id.trim())
-                                              .filter(Boolean)
-                                            if (!offerIds.length) {
-                                              return
-                                            }
-                                            const nextFilter = getResetListFilter()
-                                            setSearchText("")
-                                            setFilter(nextFilter)
-                                            onAddPromotions({ offerIds }, nextFilter, () =>
-                                              setOrderIds("")
-                                            );
-                                          }}
+                                          disabled={adding}
+                                          onClick={handleAddBatch}
                                         >
-                                          <i className="mdi mdi-plus" />
+                                          {adding ? (
+                                            <Spinner size="sm" className="mr-1" />
+                                          ) : (
+                                            <i className="mdi mdi-plus" />
+                                          )}
                                           {props.t("addBatch")}
                                         </Button>
                                       )}
@@ -408,6 +463,9 @@ const ProductBatch = ({
                                           <option value="completed">
                                             {props.t("completed")}
                                           </option>
+                                          <option value="failed">
+                                            {props.t("failed")}
+                                          </option>
                                         </select>
                                       </div>
                                     </div>
@@ -446,6 +504,28 @@ const ProductBatch = ({
                                       )}
                                   </div>
                                 </div>
+                              </Col>
+                              <Col
+                                className="mb-3 d-flex justify-content-md-end"
+                                xs={12}
+                                md={5}
+                                lg={4}
+                                xl={5}
+                              >
+                                <Button
+                                  type="button"
+                                  color="light"
+                                  className="btn-rounded waves-effect waves-light"
+                                  disabled={loading}
+                                  onClick={() => onGetPromotions(filter)}
+                                >
+                                  {loading ? (
+                                    <Spinner size="sm" className="mr-1" />
+                                  ) : (
+                                    <i className="mdi mdi-refresh mr-1" />
+                                  )}
+                                  {props.t("refresh")}
+                                </Button>
                               </Col>
                             </Row>
 
@@ -578,14 +658,16 @@ ProductBatch.propTypes = {
 const mapStateToProps = ({ Settings, ProductBatchReducer }) => ({
   settings: Settings.settings,
   loading: ProductBatchReducer.loading,
+  adding: ProductBatchReducer.adding,
+  batchError: ProductBatchReducer.error,
   promotions: ProductBatchReducer.batch,
   totalPromotions: ProductBatchReducer.totalCount,
 })
 
 const mapDispatchToProps = dispatch => ({
   onGetPromotions: data => dispatch(getProductBatch(data)),
-  onAddPromotions: (data, filter, onSuccess) =>
-    dispatch(addProductBatch(data, filter, onSuccess)),
+  onAddPromotions: (data, filter, onComplete) =>
+    dispatch(addProductBatch(data, filter, onComplete)),
 
   onDeletePromotion: (data, callback) =>
     dispatch(deletePromotion(data, callback)),

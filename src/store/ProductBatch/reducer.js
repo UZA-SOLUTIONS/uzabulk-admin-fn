@@ -16,6 +16,7 @@ const INIT_STATE = {
     totalCount: 0,
     error: "",
     loading: false,
+    adding: false,
     promotion: {},
     details: {}
 }
@@ -35,6 +36,7 @@ const ProductBatch = (state = INIT_STATE, action) => {
                 batch: action.payload.data || [],
                 totalCount: action.payload.totalcount || 0,
                 loading: false,
+                error: "",
             }
 
         case GET_PRODUCTS_BATCH_FAIL:
@@ -56,21 +58,21 @@ const ProductBatch = (state = INIT_STATE, action) => {
             return {
                 ...state,
                 error: "",
-                loading: true,
+                adding: true,
             }
 
         case ADD_PRODUCTS_BATCH_FAIL:
             return {
                 ...state,
                 error: action.payload,
-                loading: false,
+                adding: false,
             }
 
         case ADD_PRODUCTS_BATCH_SUCCESS:
             return {
                 ...state,
                 error: "",
-                loading: false,
+                adding: false,
             }
 
         case GET_PRODUCTS_BATCH_DETAIL:

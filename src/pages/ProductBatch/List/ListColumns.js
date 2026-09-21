@@ -36,16 +36,30 @@ const getStatusBadge = status => {
   if (status === "completed") return "success"
   if (status === "processing") return "warning"
   if (status === "already exist") return "info"
+  if (status === "failed") return "danger"
   return "danger"
+}
+
+const truncateText = (value, max = 80) => {
+  const text = String(value || "").trim()
+  if (!text) return ""
+  if (text.length <= max) return text
+  return `${text.slice(0, max).trimEnd()}…`
 }
 
 const ListColumns = (history, toggleConfirmModal, accesses, t) => [
   {
     dataField: "title",
     text: t("title"),
-    formatter: (_, row) => (
-      <div className="text-capitalize">{row.title || "-"}</div>
-    ),
+    formatter: (_, row) => {
+      const label = row.title || row.firstProductName || row.firstOfferId || "-"
+      const truncated = truncateText(label)
+      return (
+        <div className="text-capitalize" title={label}>
+          {truncated || "-"}
+        </div>
+      )
+    },
   },
   {
     dataField: "status",
@@ -69,13 +83,19 @@ const ListColumns = (history, toggleConfirmModal, accesses, t) => [
       const processing = row.processing || 0
       const completed = row.completed || 0
       const alreadyExist = row.alreadyExist || 0
+      const failed = row.failed || 0
+      const parts = [
+        `${completed} ${t("completed")}`,
+        `${processing} ${t("processing")}`,
+      ]
+      if (failed > 0) parts.push(`${failed} ${t("failed")}`)
+      if (alreadyExist > 0) parts.push(`${alreadyExist} ${t("already exist")}`)
       return (
         <span>
           {total}
           {total > 0 && (
             <small className="text-muted d-block">
-              {completed} {t("completed")}, {processing} {t("processing")}
-              {alreadyExist > 0 ? `, ${alreadyExist} ${t("already exist")}` : ""}
+              {parts.join(", ")}
             </small>
           )}
         </span>

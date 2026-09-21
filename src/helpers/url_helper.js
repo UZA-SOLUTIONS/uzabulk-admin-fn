@@ -453,4 +453,5 @@ export const DELETE_VIRTUAL_ACCOUNT = "/store/delete/virtualaccount/"
 export const GET_BATCH_PRODUCTS = "/product-batch/batch-list"
 export const ADD_BATCH_PRODUCTS = "/product-batch/create-batch"
 export const VIEW_BATCH_PRODUCTS = "/product-batch/batch-details/"
+export const REPROCESS_BATCH_PRODUCTS = "/product-batch/reprocess"
 

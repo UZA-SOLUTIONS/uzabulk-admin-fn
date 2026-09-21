@@ -37,23 +37,29 @@ function* fetchBatch({ payload }) {
     }
 };
 
-function* addNewBatch({ payload: { promotion, filter, onSuccess } }) {
+function* addNewBatch({ payload: { promotion, filter, onComplete } }) {
     try {
         const response = yield call(addProductBatch, promotion)
 
         if (response.status == "failure") {
             window.scrollTo(0, 0)
-
-            return yield put(addProductBatchFail(response.message))
+            if (onComplete) {
+                onComplete(response)
+            }
+            return yield put(addProductBatchFail(response))
         }
 
-        yield put(addProductBatchSuccess())
-        if (onSuccess) {
-            onSuccess()
+        yield put(addProductBatchSuccess(response.data || {}))
+        if (onComplete) {
+            onComplete(response)
         }
         yield put(getProductBatchLIst(filter));
     } catch (error) {
-        yield put(addProductBatchFail("Internal Error!"))
+        const failure = { status: "failure", message: "Internal Error!" }
+        if (onComplete) {
+            onComplete(failure)
+        }
+        yield put(addProductBatchFail(failure))
     }
 };
 
