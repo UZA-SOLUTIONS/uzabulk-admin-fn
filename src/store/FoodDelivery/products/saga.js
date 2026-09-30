@@ -69,11 +69,7 @@ function* fetchFdProducts({ payload: { storeType, data } }) {
 
 function* onAddNewFdProduct({ payload: { storeType, fdProduct, history } }) {
   try {
-    if (!fdProduct.isFeaturedOnly && !fdProduct.featured_image) {
-      return yield put(addFdProductFail("image_required"))
-    } else {
-      yield put(addFdProductFail(""))
-    }
+    yield put(addFdProductFail(""))
 
     const response = yield call(postFdProduct, storeType, fdProduct)
 
@@ -111,12 +107,7 @@ function* fetchFdProduct({ payload: { storeType, id } }) {
 
 function* onPutFdProduct({ payload: { storeType, data, history } }) {
   try {
-    if (!data.isFeaturedOnly && !data.featured_image) {
-      window.scrollTo(0, 0)
-      return yield put(addFdProductFail("image_required"))
-    } else {
-      yield put(addFdProductFail(""))
-    }
+    yield put(addFdProductFail(""))
 
     const response = yield call(putFdProduct, storeType, data)
 

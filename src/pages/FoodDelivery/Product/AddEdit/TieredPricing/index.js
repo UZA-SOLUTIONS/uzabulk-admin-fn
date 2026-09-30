@@ -33,6 +33,15 @@ function TieredPricing({ pricingList, store, t, setFields, setIsValidPricing }) 
 
   const validatePricingList = () => {
     const errors = {}
+    const hasAnyValue = (pricingList || []).some(
+      pricing => pricing.startQuantity !== "" || pricing.price !== ""
+    )
+
+    if (!hasAnyValue) {
+      setIsValidPricing(true)
+      setValidationErrors({})
+      return
+    }
 
     pricingList.forEach((pricing, index) => {
       if (pricing.startQuantity === "" || pricing.price === "") {
@@ -86,7 +95,6 @@ function TieredPricing({ pricingList, store, t, setFields, setIsValidPricing }) 
                         )
                       }
                       min={1}
-                      required
                     />
                   </FormGroup>
                 </Td>
@@ -99,7 +107,6 @@ function TieredPricing({ pricingList, store, t, setFields, setIsValidPricing }) 
                       <Input
                         className={`form-control ${error ? "is-invalid" : ""}`}
                         type="number"
-                        required
                         value={pricing?.price}
                         onChange={e =>
                           handleInputChange(

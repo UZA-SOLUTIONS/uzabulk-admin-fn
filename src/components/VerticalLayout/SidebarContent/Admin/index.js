@@ -19,7 +19,7 @@ import {
 } from "helpers/contants"
 
 import { API_BASE_URL } from "helpers/api_helper"
-import { SLUGS_NAME, isProductBatchEnabled } from "helpers/contants"
+import { SLUGS_NAME, isProductBatchEnabled, getCatalogProductsPath } from "helpers/contants"
 
 const SideBarHelper = ({
   store,
@@ -405,6 +405,10 @@ const SideBarHelper = ({
       let title = item.title
       let link = `/${item?.key}`
       let icon = item?.icon
+
+      if (item.key === "products" && !linkTo) {
+        link = getCatalogProductsPath(props.settings, props.storeType)
+      }
 
       // let icon = SERVICE_ICON[item?.key]
 

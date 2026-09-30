@@ -2,6 +2,7 @@ import React from "react"
 import { Link } from "react-router-dom"
 import { Badge, Input, Label, UncontrolledTooltip } from "reactstrap"
 import moment from "moment-timezone"
+import { productImageUrl, truncateText } from "../utils/productImages"
 
 export const selectRow = props => ({
   mode: "checkbox",
@@ -40,8 +41,32 @@ const ListColumns = ({
   hasPermission,
 }) => [
   {
+    dataField: "featured_image",
+    text: t("image") || "Image",
+    formatter: (_, row) => {
+      const src = productImageUrl(row.featured_image)
+      if (!src) return null
+      return (
+        <img
+          src={src}
+          alt=""
+          width={40}
+          height={40}
+          style={{ objectFit: "cover", borderRadius: 4 }}
+        />
+      )
+    },
+  },
+  {
     dataField: "name",
     text: t("name"),
+    formatter: cell => truncateText(cell, 80),
+  },
+  {
+    dataField: "price",
+    text: t("price"),
+    formatter: (_, row) =>
+      row.price === 0 || row.price ? row.price : "",
   },
   {
     dataField: "bestSeller",
@@ -85,8 +110,8 @@ const ListColumns = ({
           }${query}`}
           className="text-secondary"
         >
-          <i className="fas fa-edit mr-3" id="viewtooltip" />
-          <UncontrolledTooltip placement="top" target="viewtooltip">
+          <i className="fas fa-edit mr-3" id={`viewtooltip-${row._id}`} />
+          <UncontrolledTooltip placement="top" target={`viewtooltip-${row._id}`}>
             {t("edit")}
           </UncontrolledTooltip>
         </Link>
@@ -100,8 +125,8 @@ const ListColumns = ({
             }}
             className="text-secondary"
           >
-            <i className="fas fa-trash-alt mr-3" id="deletetooltip" />
-            <UncontrolledTooltip placement="top" target="deletetooltip">
+            <i className="fas fa-trash-alt mr-3" id={`deletetooltip-${row._id}`} />
+            <UncontrolledTooltip placement="top" target={`deletetooltip-${row._id}`}>
               {t("delete")}
             </UncontrolledTooltip>
           </Link>

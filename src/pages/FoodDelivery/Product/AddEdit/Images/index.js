@@ -1,7 +1,6 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import PropTypes from "prop-types"
 import { withRouter, Link } from "react-router-dom"
-import { connect } from "react-redux"
 import Dropzone from "react-dropzone"
 import toastr from "toastr"
 import "toastr/build/toastr.min.css"
@@ -18,44 +17,43 @@ import {
 } from "reactstrap"
 
 import Dragable from "./Dragable"
+import { uploadProductImages } from "helpers/backend_helper"
 
-import { uploadFile, removeFile } from "store/actions"
-
-// a little function to help us with reordering the result
 const reorder = (list, startIndex, endIndex) => {
   const result = Array.from(list)
   const [removed] = result.splice(startIndex, 1)
   result.splice(endIndex, 0, removed)
-
   return result
 }
 
-/**
- * Formats the size
- */
 function formatBytes(bytes, decimals = 2) {
   if (bytes === 0) return "0 Bytes"
   const k = 1024
   const dm = decimals < 0 ? 0 : decimals
   const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
-
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i]
+  return parseFloat((bytes / k ** i).toFixed(dm)) + " " + sizes[i]
 }
 
 const Images = props => {
   const {
     id,
-    onUploadFile,
     isFeaturedOnly,
+    requiredImages,
     fields,
     setFields,
     selectedFiles,
     setselectedFiles,
     accesses,
     serviceName,
+    onUploadingChange,
   } = props
-  // console.log(isFeaturedOnly, "isFeaturedOnly");
+  const [uploading, setUploading] = useState(false)
+
+  useEffect(() => {
+    if (onUploadingChange) onUploadingChange(uploading)
+  }, [uploading])
+
   function removeImage(index) {
     if (id && !accesses?.canEdit) return
     setselectedFiles(prevFiles => [
@@ -73,54 +71,36 @@ const Images = props => {
         ...prevState,
         featured_image:
           prevState.featured_image === (prevState?.images || [])[index]
-            ? ""
+            ? (prevState?.images || [])[index === 0 ? 1 : 0] || ""
             : prevState.featured_image,
         images: [
-          ...(prevState?.images || [])?.slice(0, index),
-          ...(prevState?.images || [])?.slice(index + 1),
+          ...(prevState?.images || []).slice(0, index),
+          ...(prevState?.images || []).slice(index + 1),
         ],
       }))
     }
   }
 
-  const uploadFileSuccess = response => {
-    const { _id: featured_image } = response.data
-
-    if (isFeaturedOnly) {
-      return setFields(prevState => ({
-        ...prevState,
-        featured_image,
-      }))
-    }
-
-    setFields(prevState => ({
-      ...prevState,
-      featured_image: !!prevState.featured_image
-        ? prevState.featured_image
-        : featured_image,
-      images: [...(prevState?.images || []), featured_image],
-    }))
-  }
-
-  function handleAcceptedFiles(_files) {
+  async function handleAcceptedFiles(_files) {
     if (id && !accesses?.canEdit) return
+    if (uploading) return
     if (isFeaturedOnly) {
       _files = _files.slice(0, 1)
     }
 
-    const files = _files?.filter(file => file.size < 5242880)
+    const files = _files?.filter(file => file.size < 15 * 1024 * 1024)
 
     if (files.length < _files.length) {
       return toastr.error(props.t("max_file_size"))
     }
+    if (!files.length) return
 
-    files.map(file => {
+    files.forEach(file => {
       Object.assign(file, {
         preview: URL.createObjectURL(file),
         formattedSize: formatBytes(file.size),
+        loading: true,
       })
-
-      onUploadFile({ image: file }, uploadFileSuccess)
     })
 
     if (isFeaturedOnly) {
@@ -128,10 +108,54 @@ const Images = props => {
     } else {
       setselectedFiles(prevFiles => [...prevFiles, ...files])
     }
+
+    setUploading(true)
+    try {
+      const response = await uploadProductImages(files)
+      if (!response || response.status === "failure") {
+        toastr.error(response?.message || props.t("image_required"))
+        setselectedFiles(prevFiles => prevFiles.filter(file => !file.loading))
+        return
+      }
+
+      const items = response.data?.items || []
+      const urls = items.map(item => item.url).filter(Boolean)
+      if (!urls.length) {
+        setselectedFiles(prevFiles => prevFiles.filter(file => !file.loading))
+        toastr.error(props.t("image_required"))
+        return
+      }
+
+      setselectedFiles(prevFiles => [
+        ...prevFiles.filter(file => !file.loading),
+        ...items.map(item => ({
+          preview: item.url,
+          name: item.url,
+          url: item.url,
+        })),
+      ])
+
+      setFields(prevState => {
+        if (isFeaturedOnly) {
+          return { ...prevState, featured_image: urls[0] }
+        }
+        const nextImages = [...(prevState?.images || []), ...urls]
+        return {
+          ...prevState,
+          featured_image: prevState.featured_image || urls[0],
+          images: nextImages,
+        }
+      })
+    } catch (error) {
+      toastr.error(error?.message || props.t("image_required"))
+      setselectedFiles(prevFiles => prevFiles.filter(file => !file.loading))
+    } finally {
+      setUploading(false)
+    }
   }
 
   const onFilesDragEnd = result => {
-    const { destination, draggableId, source } = result
+    const { destination, source } = result
     if (!destination) {
       return
     }
@@ -145,7 +169,11 @@ const Images = props => {
       )
 
       setselectedFiles(items)
-      setFields(prevState => ({ ...prevState, images }))
+      setFields(prevState => ({
+        ...prevState,
+        images,
+        featured_image: prevState.featured_image,
+      }))
     }
   }
 
@@ -157,23 +185,28 @@ const Images = props => {
             <FormGroup>
               <Label>
                 {props.t(isFeaturedOnly ? "featured_image" : "product_images")}{" "}
-                {isFeaturedOnly ? "" : <span class="text-danger">*</span>}
+                {requiredImages ? <span className="text-danger">*</span> : null}
               </Label>
 
               <Dropzone
+                disabled={uploading || (id && !accesses?.canEdit)}
                 onDrop={acceptedFiles => {
                   handleAcceptedFiles(acceptedFiles)
                 }}
               >
                 {({ getRootProps, getInputProps }) => (
-                  <div className="dropzone dropzone-sm">
+                  <div className={`dropzone dropzone-sm${uploading ? " opacity-50" : ""}`}>
                     <div className="dz-message needsclick" {...getRootProps()}>
                       <input {...getInputProps()} multiple={!isFeaturedOnly} />
                       <div className="dz-message needsclick">
                         <div className="mb-3">
-                          <i className="display-4 text-muted bx bxs-cloud-upload" />
+                          {uploading ? (
+                            <Spinner color="primary" />
+                          ) : (
+                            <i className="display-4 text-muted bx bxs-cloud-upload" />
+                          )}
                         </div>
-                        <h4>{props.t("drop_files")}</h4>
+                        <h4>{uploading ? props.t("processing") : props.t("drop_files")}</h4>
                       </div>
                     </div>
                   </div>
@@ -234,16 +267,16 @@ const Images = props => {
                                 className="custom-control-input"
                                 id={`option-radio-${i}`}
                                 checked={
-                                  fields?.images[i] === fields?.featured_image
+                                  (fields?.images || [])[i] === fields?.featured_image
                                 }
                                 onChange={() => {
                                   if (
-                                    fields?.images[i] === fields?.featured_image
+                                    (fields?.images || [])[i] === fields?.featured_image
                                   ) {
                                   } else {
                                     setFields(prevState => ({
                                       ...prevState,
-                                      featured_image: fields?.images[i],
+                                      featured_image: (fields?.images || [])[i],
                                     }))
                                   }
                                 }}
@@ -265,7 +298,7 @@ const Images = props => {
               </div>
               <FormText>
                 {props.t("images_guide", { serviceName })}{" "}
-                {props.t("max_file_size")}
+                Max. upload file size: 15MB
               </FormText>
             </FormGroup>
           </Col>
@@ -276,15 +309,12 @@ const Images = props => {
 }
 
 Images.propTypes = {
-  onUploadFile: PropTypes.func,
-  onRemoveFile: PropTypes.func,
+  requiredImages: PropTypes.bool,
+  onUploadingChange: PropTypes.func,
 }
 
-const mapStateToProps = ({ }) => ({})
+Images.defaultProps = {
+  requiredImages: false,
+}
 
-const mapDispatchToProps = dispatch => ({
-  onUploadFile: (data, callback) => dispatch(uploadFile(data, callback)),
-  onRemoveFile: data => dispatch(removeFile(data)),
-})
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Images))
+export default withRouter(Images)

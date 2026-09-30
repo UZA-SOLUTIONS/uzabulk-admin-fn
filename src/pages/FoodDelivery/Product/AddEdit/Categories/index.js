@@ -140,7 +140,7 @@ const Categories = ({
                 {activeStoreType?.storeType.toUpperCase() === "CARRENTAL"
                   ? props.t("brand_type")
                   : props.t("categories")}
-                <span class="text-danger">*</span>
+                {props.required !== false && <span className="text-danger">*</span>}
               </Label>
 
               <Select

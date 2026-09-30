@@ -38,6 +38,8 @@ import {
   PRODUCT_FORM,
   VERSION_3_PRODUCT_FORM,
   PRICING_TYPE_LIST,
+  WHOLESALE_PRODUCT_FORM,
+  isProductBatchEnabled,
 } from "helpers/contants"
 
 import { addFdProduct, getFdProduct, putFdProduct } from "store/actions"
@@ -49,6 +51,8 @@ import Breadcrumbs from "components/Common/Breadcrumb2"
 import { withTranslation } from "react-i18next"
 
 import Images from "./Images"
+import FeatureSpecs from "./FeatureSpecs"
+import { filesFromProductImages, productImageKey } from "../utils/productImages"
 import Categories from "./Categories"
 import Addons from "./Addons"
 import Cuisines from "./Brands"
@@ -306,6 +310,14 @@ const AddProduct = ({
         : DEFAULT_STORE_TYPE["PRODUCT_FORM"]) || {})
     : ""
 
+  const isWholesaleCatalog = isProductBatchEnabled({
+    ...(settings || {}),
+    slug: props.slug,
+  })
+  if (isWholesaleCatalog) {
+    _PRODUCT_FORM = WHOLESALE_PRODUCT_FORM
+  }
+
   const { id, vendorId } = useParams()
   const { vendor_name } = queryString.parse(props?.location?.search)
 
@@ -325,7 +337,9 @@ const AddProduct = ({
     canEdit: false,
   })
 
-  const [isValidPricing, setIsValidPricing] = useState();
+  const [isValidPricing, setIsValidPricing] = useState(true);
+  const [uploadingImages, setUploadingImages] = useState(false)
+  const [showSeo, setShowSeo] = useState(false)
   const [fields, setFields] = useState({
     storeTypeId: "",
     name: "",
@@ -357,6 +371,7 @@ const AddProduct = ({
     tieredPricing: false,
     price_tiers: [initTieredPricing],
     vendor: vendorId,
+    featureAttribute: [],
   })
 
   console.log("ADD PRODUCT VENDOR", vendorId)
@@ -474,6 +489,7 @@ const AddProduct = ({
           weight: fdProduct.weight || "",
           price_tiers: fdProduct?.price_tiers?.length ? fdProduct.price_tiers : [initTieredPricing],
           tieredPricing: fdProduct.price_tiers?.length ? true : false,
+          featureAttribute: fdProduct.featureAttribute || [],
         }))
 
         if (_PRODUCT_FORM.veganType) {
@@ -484,58 +500,31 @@ const AddProduct = ({
         }
 
         if (!_PRODUCT_FORM?.images) {
-          if (fdProduct?.featured_image?.link) {
+          const featuredKey = productImageKey(fdProduct?.featured_image)
+          const featuredFiles = filesFromProductImages(fdProduct?.featured_image, [])
+          if (featuredKey) {
             setFields(prevState => ({
               ...prevState,
-              featured_image: fdProduct?.featured_image?._id,
+              featured_image: featuredKey,
             }))
-            setselectedFiles([
-              {
-                preview: fdProduct.featured_image.link,
-                name: fdProduct.featured_image.link,
-              },
-            ])
+            setselectedFiles(featuredFiles)
           }
-        } else {
-          if (fdProduct?.images) {
-            if (fdProduct?.featured_image?.link) {
-              setFields(prevState => ({
-                ...prevState,
-                featured_image: fdProduct?.featured_image?._id,
-              }))
-            }
+        } else if (fdProduct?.images || fdProduct?.featured_image) {
+          const featuredKey = productImageKey(fdProduct?.featured_image)
+          const galleryKeys = (Array.isArray(fdProduct?.images) ? fdProduct.images : [])
+            .map(productImageKey)
+            .filter(Boolean)
+          const imageKeys = [
+            ...(featuredKey ? [featuredKey] : []),
+            ...galleryKeys.filter(key => key !== featuredKey),
+          ]
 
-            setFields(prevState => ({
-              ...prevState,
-              images: [
-                ...(fdProduct?.featured_image?.link
-                  ? [fdProduct?.featured_image?._id]
-                  : []),
-                ...fdProduct?.images
-                  ?.filter(
-                    image => image?._id !== fdProduct?.featured_image?._id
-                  )
-                  ?.map(image => image._id),
-              ],
-            }))
-
-            setselectedFiles([
-              ...(fdProduct?.featured_image?.link
-                ? [
-                  {
-                    preview: fdProduct?.featured_image?.link,
-                    name: fdProduct?.featured_image?.link,
-                  },
-                ]
-                : []),
-              ...fdProduct?.images
-                ?.filter(image => image?._id !== fdProduct?.featured_image?._id)
-                ?.map(image => ({
-                  preview: image.link,
-                  name: image.link,
-                })),
-            ])
-          }
+          setFields(prevState => ({
+            ...prevState,
+            featured_image: featuredKey || imageKeys[0] || "",
+            images: imageKeys,
+          }))
+          setselectedFiles(filesFromProductImages(fdProduct?.featured_image, fdProduct?.images))
         }
         if (fdProduct?.guidelines) {
           setFields(pre => ({
@@ -722,9 +711,22 @@ const AddProduct = ({
   const onSubmit = event => {
     event.preventDefault()
 
-    if (loading || uploadingFile || !isValidPricing) return;
+    if (loading || uploadingFile || uploadingImages || !isValidPricing) return;
 
-    const data = fields
+    if (!String(fields.name || "").trim()) return;
+
+    const data = { ...fields }
+
+    if (Array.isArray(data.price_tiers)) {
+      data.price_tiers = data.price_tiers.filter(
+        tier =>
+          tier &&
+          tier.startQuantity !== "" &&
+          tier.startQuantity != null &&
+          tier.price !== "" &&
+          tier.price != null
+      )
+    }
 
     if (_PRODUCT_FORM?.categories) {
       const finalCategories = []
@@ -776,14 +778,13 @@ const AddProduct = ({
       data.variations = variations
     }
 
-    data.images = data?.images?.filter(image => image !== data?.featured_image)
+    data.images = (Array.isArray(data.images) ? data.images : []).filter(Boolean)
 
-    if (!data?.featured_image) {
-      data.featured_image = data?.images[0]
-      // data.images = data?.images?.filter(
-      //   image => image !== data?.featured_image
-      // )
-      data.images = data?.images;
+    if (!data.featured_image && data.images[0]) {
+      data.featured_image = data.images[0]
+    }
+    if (data.featured_image && !data.images.includes(data.featured_image)) {
+      data.images = [data.featured_image, ...data.images]
     }
 
     if (id) {
@@ -800,7 +801,9 @@ const AddProduct = ({
     } else {
       if (!accesses.canAdd && !hasPermission("STORE.product.CREATE ")) return
 
-      if (fields?.pricingType == "") toastr.error("Please Fill Pricing Type")
+      if (!isWholesaleCatalog && fields?.pricingType == "") {
+        return
+      }
 
       onAddFdProduct(
         activeStoreType?.storeType?.toLowerCase(),
@@ -870,13 +873,14 @@ const AddProduct = ({
                 </FormGroup>
               </Col>
 
-              {_PRODUCT_FORM?.description && (
+              {_PRODUCT_FORM?.description && !isWholesaleCatalog && (
                 <Col lg={12}>
                   <FormGroup>
                     <Label>
                       {props.t("description")}{" "}
-                      {activeStoreType?.storeType?.toLowerCase() !== "food" && (
-                        <span class="text-danger">*</span>
+                      {!isWholesaleCatalog &&
+                        activeStoreType?.storeType?.toLowerCase() !== "food" && (
+                        <span className="text-danger">*</span>
                       )}
                     </Label>
 
@@ -912,8 +916,10 @@ const AddProduct = ({
           </CardBody>
         </Card>
 
+        {!isWholesaleCatalog && (
         <Images
           isFeaturedOnly={!_PRODUCT_FORM?.images || false}
+          requiredImages={false}
           fields={fields}
           setFields={setFields}
           selectedFiles={selectedFiles}
@@ -922,7 +928,9 @@ const AddProduct = ({
           accesses={accesses}
           t={props.t}
           serviceName={serviceName}
+          onUploadingChange={setUploadingImages}
         />
+        )}
         {_PRODUCT_FORM?.hotelinfo && (
           <HotelInfo
             fields={fields}
@@ -977,7 +985,8 @@ const AddProduct = ({
             </CardBody>
           </Card>
         )}
-        {(slugname.oneTimeShop == props?.slug || props?.slug == "main-v2") && (
+        {(slugname.oneTimeShop == props?.slug || props?.slug == "main-v2") &&
+          !isWholesaleCatalog && (
           <Card>
             <CardBody>
               <Row>
@@ -1068,7 +1077,8 @@ const AddProduct = ({
               <Col lg={6}>
                 <FormGroup>
                   <Label htmlFor="formrow-price-Input">
-                    {props.t("price")} <span class="text-danger">*</span>
+                    {props.t("price")}{" "}
+                    {!isWholesaleCatalog && <span className="text-danger">*</span>}
                   </Label>
 
                   <InputGroup>
@@ -1084,7 +1094,7 @@ const AddProduct = ({
                       onChange={handleChange("price")}
                       min={0}
                       step={0.01}
-                      required
+                      required={!isWholesaleCatalog}
                     />
                   </InputGroup>
                   <FormText>
@@ -1173,6 +1183,57 @@ const AddProduct = ({
           </CardBody>
         </Card>
 
+        {isWholesaleCatalog && (
+          <>
+            <Images
+              isFeaturedOnly={!_PRODUCT_FORM?.images || false}
+              requiredImages={false}
+              fields={fields}
+              setFields={setFields}
+              selectedFiles={selectedFiles}
+              setselectedFiles={setselectedFiles}
+              id={id}
+              accesses={accesses}
+              t={props.t}
+              serviceName={serviceName}
+              onUploadingChange={setUploadingImages}
+            />
+            {_PRODUCT_FORM?.description && (
+              <Card>
+                <CardBody>
+                  <FormGroup>
+                    <Label>{props.t("description")}</Label>
+                    <CKEditor
+                      editor={ClassicEditor}
+                      config={{
+                        toolbar: [
+                          "heading",
+                          "|",
+                          "bold",
+                          "italic",
+                          "link",
+                          "BulletedList",
+                          "NumberedList",
+                          "FontBackgroundColor",
+                          "FontColor",
+                        ],
+                      }}
+                      data={fields.description}
+                      onChange={(event, editor) => {
+                        const data = editor.getData()
+                        handleChange("description")({
+                          target: { value: data },
+                        })
+                      }}
+                    />
+                    <FormText>{props.t("description_guide")}</FormText>
+                  </FormGroup>
+                </CardBody>
+              </Card>
+            )}
+          </>
+        )}
+
         <Card>
           <CardBody>
             {_PRODUCT_FORM?.manage_stock && (
@@ -1221,10 +1282,7 @@ const AddProduct = ({
                   <FormGroup>
                     <Label>
                       {props.t("stock_quantity")}{" "}
-                      {activeStoreType?.storeType?.toLowerCase() !== "food" && (
-                        <span class="text-danger">*</span>
-                      )}
-                      <span className="text-danger ml-1">*</span>
+                      <span className="text-danger">*</span>
                     </Label>
                     <Input
                       type="number"
@@ -1268,6 +1326,10 @@ const AddProduct = ({
             </Row>
           </CardBody>
         </Card>
+
+        {isWholesaleCatalog && (
+          <FeatureSpecs fields={fields} setFields={setFields} t={props.t} />
+        )}
 
         {_PRODUCT_FORM?.variations && (
           <Card>
@@ -1323,12 +1385,22 @@ const AddProduct = ({
           </Card>
         )}
 
-        <SeoSettings
-          className="d-none d-lg-block"
-          t={props.t}
-          fields={fields}
-          handleSeoChange={handleSeoChange}
-        />
+        {isWholesaleCatalog && !showSeo ? (
+          <Card className="d-none d-lg-block">
+            <CardBody>
+              <Button type="button" color="link" className="p-0" onClick={() => setShowSeo(true)}>
+                {props.t("seo_settings")}
+              </Button>
+            </CardBody>
+          </Card>
+        ) : (
+          <SeoSettings
+            className="d-none d-lg-block"
+            t={props.t}
+            fields={fields}
+            handleSeoChange={handleSeoChange}
+          />
+        )}
       </Col>
 
       <Col lg={4}>
@@ -1341,6 +1413,7 @@ const AddProduct = ({
             setparentCategories={setparentCategories}
             t={props.t}
             serviceName={serviceName}
+            required={!isWholesaleCatalog}
           />
         )}
 
@@ -1463,12 +1536,22 @@ const AddProduct = ({
           </CardBody>
         </Card>
 
-        <SeoSettings
-          className="d-block d-lg-none"
-          t={props.t}
-          fields={fields}
-          handleSeoChange={handleSeoChange}
-        />
+        {isWholesaleCatalog && !showSeo ? (
+          <Card className="d-block d-lg-none">
+            <CardBody>
+              <Button type="button" color="link" className="p-0" onClick={() => setShowSeo(true)}>
+                {props.t("seo_settings")}
+              </Button>
+            </CardBody>
+          </Card>
+        ) : (
+          <SeoSettings
+            className="d-block d-lg-none"
+            t={props.t}
+            fields={fields}
+            handleSeoChange={handleSeoChange}
+          />
+        )}
       </Col>
 
       <Col lg={8} className="spinner-content">
@@ -1478,10 +1561,10 @@ const AddProduct = ({
               ? accesses.canEdit && hasPermission("STORE.product.UPDATE")
               : accesses.canAdd && hasPermission("STORE.product.CREATE")
           }
-          submitDisabled={uploadingFile || loading}
+          submitDisabled={uploadingFile || uploadingImages || loading}
           goBack={() => history.goBack()}
           loader={
-            (loading || uploadingFile) && (
+            (loading || uploadingFile || uploadingImages) && (
               <div className="spinner">
                 <Spinner color="primary" />
               </div>

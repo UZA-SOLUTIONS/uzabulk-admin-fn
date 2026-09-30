@@ -67,6 +67,21 @@ export const postFile = data => {
 export const postRemoveFile = data =>
   post(API_VERSION + url.POST_REMOVE_FILE, data)
 
+export const uploadProductImages = (files = [], folder = "products") => {
+  const formData = new FormData()
+  files.forEach(file => formData.append("files", file))
+  formData.append("folder", folder)
+
+  const config = {
+    headers: { ...authHeader() },
+    timeout: 120000,
+    maxContentLength: Infinity,
+    maxBodyLength: Infinity,
+  }
+
+  return post(API_VERSION + url.UPLOAD_PRODUCT_IMAGES, formData, config)
+}
+
 // Customers
 export const getCustomers = data => post(API_VERSION + url.GET_CUSTOMERS, data)
 export const postCustomer = data => post(API_VERSION + url.ADD_CUSTOMER, data)

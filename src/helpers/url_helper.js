@@ -32,6 +32,7 @@ export const POST_UPGRADE_PLAN = "/store/upgradeplan"
 // File
 export const POST_FILE = "/file/add"
 export const POST_REMOVE_FILE = "/file/remove"
+export const UPLOAD_PRODUCT_IMAGES = "/uploads/images"
 
 // CUSTOMERS
 export const GET_CUSTOMERS = "/store/users"

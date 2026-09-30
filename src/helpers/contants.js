@@ -144,6 +144,11 @@ export const ADMIN_SERVICE_ROUTE = {
     noAdd: true,
     hasDetails: true
   },
+  products: {
+    title: "products",
+    key: "products",
+    icon: "bx bx-package",
+  },
   promoCode1: {
     title: "promo_codes",
     key: "promo-codes",
@@ -419,6 +424,7 @@ export const BASIC_ADMIN_SERVICE_ROUTE_PART2 = {
   /* notifications: ADMIN_SERVICE_ROUTE.notifications, */
   promotion: ADMIN_SERVICE_ROUTE.promotion,
   productBatch: ADMIN_SERVICE_ROUTE.productBatch,
+  products: ADMIN_SERVICE_ROUTE.products,
   promoCode1: ADMIN_SERVICE_ROUTE.promoCode1,
   reports: ADMIN_SERVICE_ROUTE.reports,
   accounting: ADMIN_SERVICE_ROUTE.accounting,
@@ -517,10 +523,10 @@ export const VENDOR_SERVICES_ROUTE = {
     key: "product",
     isDynamic: true,
     pageLocation: "FoodDelivery/Product",
+    icon: "bx bx-package",
     notInVendor: true,
-    notInBasicPlan: true,
-    notInPremiumPlan: true,
-    onlyForStore: [],
+    notInBasicPlan: false,
+    notInPremiumPlan: false,
   },
 
   // This is working as a categories // Using this object // Category is visible in nav menu.
@@ -643,6 +649,11 @@ export const SERVICE_NAMES = {
     drivers: "Drivers",
     "order-settings": "Order Setting",
   },
+}
+
+SERVICE_NAMES.GROCERY = {
+  ...SERVICE_NAMES.ECOMMERCE,
+  product: "Product",
 }
 
 export const GET_SERVICE_NAME = ({ storeType, name = "vendor", label }) => {
@@ -832,6 +843,22 @@ export const PRODUCT_FORM = {
     hotelinfo: true,
     amenities: true,
   },
+}
+
+export const WHOLESALE_PRODUCT_FORM = {
+  description: true,
+  featured_image: true,
+  images: true,
+  manage_stock: true,
+  stock_quantity: true,
+  variations: true,
+  categories: true,
+  addon: false,
+  cuisine: false,
+  veganType: false,
+  guidelines: false,
+  hotelinfo: false,
+  amenities: false,
 }
 
 export const VERSION_3_PRODUCT_FORM = {
@@ -1859,6 +1886,20 @@ export const isProductBatchEnabled = (settings = {}) => {
     isHideThingTrue(settings.hideThings, "isProductBatch") ||
     isHideThingTrue(settings.hideThings, "isPromotions")
   )
+}
+
+/** Admin Products CRUD lives at /{storeType}/products (grocery catalog). */
+export const getCatalogProductsPath = (settings = {}, storeTypes = []) => {
+  const stores = Array.isArray(storeTypes) ? storeTypes : []
+  const preferred =
+    stores.find(store =>
+      ["GROCERY", "ECOMMERCE"].includes(String(store?.storeType || "").toUpperCase())
+    ) || stores[0]
+  const fromSettings = settings?.storeTypeEnabled?.[0]?.storeType
+  const storeType = String(
+    preferred?.storeType || fromSettings || "GROCERY"
+  ).toLowerCase()
+  return `/${storeType}/products`
 }
 // "driverlistdispatcher"
 

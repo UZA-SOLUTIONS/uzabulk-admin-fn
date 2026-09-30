@@ -13,6 +13,7 @@ import {
   ADMIN_SERVICE_ROUTE,
   ADMIN_SUB_SERVICES_ROUTE,
   isProductBatchEnabled,
+  getCatalogProductsPath,
 } from "helpers/contants"
 
 import { API_BASE_URL } from "helpers/api_helper"
@@ -205,6 +206,10 @@ const SideBarHelper = ({
       let title = item.title
       let link = `/${item?.key}`
       let icon = item?.icon
+
+      if (item.key === "products" && !linkTo) {
+        link = getCatalogProductsPath(props.settings, props.storeType)
+      }
 
 
       /* Prefix link if needed (Like Store Type Routes (food/ or grocery/)) */
